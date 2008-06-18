@@ -24,6 +24,10 @@ Companion.onAnalyzeCommand = function() {
     Companion._getOpenCalaisAnnotation(browser);
 };
 
+Companion.inspect = function(o) {
+    window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=600,height=300", o);
+};
+
 Companion._getOpenCalaisAnnotation = function(browser) {
     var textFragments = [];
     
@@ -53,35 +57,34 @@ Companion._getOpenCalaisAnnotation = function(browser) {
     processNode(browser.contentDocument.body);
     
     var text = textFragments.join("\n");
-    
-    var request = new XMLHttpRequest();
-	request.open("POST", "http://sws.clearforest.com/ws/sws.asmx/TagIT", true);
-	request.onreadystatechange = function() { Companion._stateChangeCallback(request); };
-	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.setRequestHeader('User-Agent', 'Gnosis (compatible; Mozilla 5.0, Yoav Gever)');
-	request.send("UID=0&content=" + escape(text) + "&typeID=1");
+    OpenCalaisUtil.analyzeText(text, Companion._onOpenCalaisTextAnalysisResult);
 };
 
-Companion._stateChangeCallback = function(request) {
-    if (request.readyState != 4) {
-        return;
-    }
+Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc) {
+    Companion.inspect(xmlDoc);
     
-    if (request.status != 200) {
-        Companion.log(
-            "Companion error: " +
-            "state = " + request.readyState + 
-            " status = " + request.status
-        );
-        return;
+    var root = xmlDoc.firstChild.nextSibling;
+    var entities = root.getElementsByTagName("Entities")[0].childNodes;
+    var done = {};
+    for (var i = 0 ; i < entities.length ; i++) {
+        var entityNode = entities[i];
+        var entityType = entityNode.nodeName;
+        var detectedText = entityNode.getElementsByTagName("Detection")[0].firstChild.nodeValue;
+        
+        if (done[detectedText]) {
+            continue;
+        } else {
+            done[detectedText] = "OK";
+        }
+        
+        var entityNormalizedText;
+        try {
+            entityNormalizedText = entityNode.getElementsByTagName(entityType)[0].firstChild.nodeValue;
+        } catch (ex) {
+            // Event & Fact (BUG!!!)
+            entityNormalizedText = detectedText;
+        }
+        
+        Companion.log(entityType + ": " + entityNormalizedText + " (" + detectedText + ")");
     }
-    
-    var textNode = request.responseXML.firstChild.firstChild;
-    var xmlstr = "";
-    while (textNode != null) {
-        xmlstr += textNode.nodeValue;
-        textNode = textNode.nextSibling;
-    }
-    
-    Companion.log(xmlstr);
 };
