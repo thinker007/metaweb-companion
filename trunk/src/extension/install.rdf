@@ -8,7 +8,7 @@
     <em:creator>David Huynh</em:creator>
     <em:description>Holds your hand as you explore the Web of Data.</em:description>
     <em:homepageURL>http://code.google.com/p/metaweb-companion/</em:homepageURL>
-    <em:updateURL>http://metaweb-companion.googlecode.com/svn/trunk/updates.rdf</em:updateURL>
+    <em:updateURL>https://metaweb-companion.googlecode.com/svn/trunk/updates.rdf</em:updateURL>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id> <!-- firefox -->
