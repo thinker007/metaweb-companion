@@ -7,10 +7,12 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "City": {
         "freebaseTypes": [
+            "/location/citytown"
         ]
     },
     "Company": {
         "freebaseTypes": [
+            "/business/company"
         ]
     },
     "Continent": {
@@ -19,10 +21,12 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "Country": {
         "freebaseTypes": [
+            "/location/country"
         ]
     },
     "Currency": {
         "freebaseTypes": [
+            "/finance/currency"
         ]
     },
     "EmailAddress": {
@@ -31,6 +35,7 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "EntertainmentAwardEvent": {
         "freebaseTypes": [
+            "/award/award"
         ]
     },
     "Facility": {
@@ -43,6 +48,7 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "Holiday": {
         "freebaseTypes": [
+            "/time/holiday"
         ]
     },
     "IndustryTerm": {
@@ -51,30 +57,37 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "MedicalCondition": {
         "freebaseTypes": [
+            "/medicine/disease"
         ]
     },
     "Movie": {
         "freebaseTypes": [
+            "/film/film"
         ]
     },
     "MusicAlbum": {
         "freebaseTypes": [
+            "/music/album"
         ]
     },
     "MusicGroup": {
         "freebaseTypes": [
+            "/music/musical_group"
         ]
     },
     "NaturalDisaster": {
         "freebaseTypes": [
+            "/user/skud/disaster/disaster"
         ]
     },
     "NaturalFeature": {
         "freebaseTypes": [
+            "/geography/geographical_feature"
         ]
     },
     "Organization": {
         "freebaseTypes": [
+            "/organization/organization"
         ]
     },
     "Person": {
@@ -88,10 +101,13 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "Product": {
         "freebaseTypes": [
+            "/business/consumer_product"
         ]
     },
     "ProvinceOrState": {
         "freebaseTypes": [
+            "/location/us_state",
+            "/location/province"
         ]
     },
     "PublishedMedium": {
@@ -100,6 +116,7 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "Region": {
         "freebaseTypes": [
+            "/location/region"
         ]
     },
     "SportsEvent": {
@@ -116,6 +133,7 @@ OpenCalaisUtil.entityTypeMap = {
     },
     "TVShow": {
         "freebaseTypes": [
+            "/tv/tv_program"
         ]
     },
     "URL": {

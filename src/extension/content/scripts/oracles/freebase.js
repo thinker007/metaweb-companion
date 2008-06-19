@@ -1,72 +1,82 @@
 var FreebaseOracle = {};
+FreebaseOracle._batchSize = 10;
 
 FreebaseOracle.reconcile = function(entries, onDone) {
-	var state = { index: 0 };
-	var doNext = function() {
-		if (state.index >= entries.length) {
-			if (typeof onDone == "function") {
-				onDone();
-			}
-			return;
-		}
-		
-		var entry = entries[state.index++];
-		Companion.log("Reconciling " + state.index + " of " + entries.length + ": " + entry.name);
-	
-		FreebaseOracle._reconcileEntry(entry, doNext);
-	};
-	doNext();
+    var state = { index: 0 };
+    var doNext = function() {
+        if (state.index >= entries.length) {
+            if (typeof onDone == "function") {
+                onDone();
+            }
+            return;
+        }
+        
+        var start = state.index;
+        var end = Math.min(start + FreebaseOracle._batchSize, entries.length);
+        state.index = end;
+        
+        Companion.log("Reconciling entries " + start + " to " + end + " of " + entries.length);
+    
+        FreebaseOracle._reconcileBatch(entries, start, end, doNext);
+    };Companion.log("here");
+    doNext();
 };
 
-FreebaseOracle._reconcileEntry = function(entry, cont) {
-	
-	var params = [
-		"name=" + escape(entry.name),
-		"responseType=json"
-	];
-	if (entry.freebaseTypes.length > 0) {
-		params.push("types=" + escape(entry.freebaseTypes.join(",")));
-	}
-	var url = "http://freebase.com/dataserver/reconciliation/?" + params.join("&");
-	var request = new XMLHttpRequest();
-	request.open("GET", url, true);
-	request.onreadystatechange = function() { FreebaseOracle._reconcileStateChangeCallback(request, entry, cont); };
-	request.send("");
+FreebaseOracle._reconcileBatch = function(entries, start, end, cont) {
+    var a = [];
+    for (var i = start; i < end; i++) {
+        var entry = entries[i];
+        a.push({ name: entry.name, freebaseTypes: entry.freebaseTypes });
+    }
+    
+    var url = "http://batchreconcile.dfhuynh.user.acre.metaweb.com/acre/";
+    var request = new XMLHttpRequest();
+    request.open("POST", url, true);
+    request.onreadystatechange = function() { 
+        FreebaseOracle._reconcileBatchStateChangeCallback(request, entries, start, end, cont) 
+    };
+    request.send(jsonize({ entries: a }));
 };
 
-FreebaseOracle._reconcileStateChangeCallback = function(request, entry, cont) {
+FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, start, end, cont) {
     if (request.readyState != 4) {
+        Companion.log("working...");
         return;
     }
     
     if (request.status != 200) {
         Companion.log(
-            "FreebaseOracle reconciliation error: " +
+            "Batch reconciliation error: " +
             "state = " + request.readyState + 
             " status = " + request.status +
             " text = " + request.responseText
         );
         
-		cont();
-        return;
+        for (var i = start; i < end; i++) {
+            entries[i].freebaseReconciliationResult = {
+                error: "unknown"
+            };
+        }
+    } else {
+	    try {
+	        var o = eval("(" + request.responseText + ")");
+	        var entries2 = o.entries;
+	        for (var i = 0; i < entries2.length; i++) {
+	            var entry = entries[start + i];
+	            var entry2 = entries2[i];
+	            if ("uri" in entry2) {
+	                entry.freebaseReconciliationResult = {
+	                    uri: entry2.uri
+	                };
+	            } else {
+	                entry.freebaseReconciliationResult = {
+	                    error: entry2.error
+	                };
+	            }
+	        }
+	    } catch (e) {
+	        Companion.exception(e);
+	    }
     }
-    
-	try {
-		var o = eval("(" + request.responseText + ")");
-		var results = o.results;
-		if (results.length > 0) {
-			var id = results[0].id.replace(/\\\//g, "/");
-			entry.freebaseReconciliationResult = {
-				uri: "http://freebase.com/view" + id
-			};
-		} else {
-			entry.freebaseReconciliationResult = {
-				error: "Unknown name"
-			};
-		}
-	} catch (e) {
-		Companion.exception(e);
-	}
-	
-	cont();
+    cont();
 };
