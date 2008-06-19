@@ -6,6 +6,7 @@
 
 <overlay id="companion-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="scripts/overlay.js" />
+    <script src="scripts/jsonize.js" />
 	<script src="scripts/opencalais-util.js" />
 	<script src="scripts/oracles/freebase.js" />
 	
