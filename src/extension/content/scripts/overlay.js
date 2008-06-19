@@ -57,34 +57,58 @@ Companion._getOpenCalaisAnnotation = function(browser) {
     processNode(browser.contentDocument.body);
     
     var text = textFragments.join("\n");
-    OpenCalaisUtil.analyzeText(text, Companion._onOpenCalaisTextAnalysisResult);
+    OpenCalaisUtil.analyzeText(text, function(xmlDoc) {
+        Companion._onOpenCalaisTextAnalysisResult(xmlDoc, browser)
+    });
 };
 
-Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc) {
-    Companion.inspect(xmlDoc);
+Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
+    //Companion.inspect(xmlDoc);
     
     var root = xmlDoc.firstChild.nextSibling;
     var entities = root.getElementsByTagName("Entities")[0].childNodes;
-    var done = {};
+    var list = [];
+    var map = {};
     for (var i = 0 ; i < entities.length ; i++) {
         var entityNode = entities[i];
         var entityType = entityNode.nodeName;
-        var detectedText = entityNode.getElementsByTagName("Detection")[0].firstChild.nodeValue;
         
-        if (done[detectedText]) {
-            continue;
-        } else {
-            done[detectedText] = "OK";
-        }
+        var detectionNode = entityNode.getElementsByTagName("Detection")[0];
+        var detection = {
+            text:   detectionNode.firstChild.nodeValue,
+            offset: parseInt(detectionNode.getAttribute("offset")),
+            length: parseInt(detectionNode.getAttribute("length"))
+        };
         
-        var entityNormalizedText;
+        var normalizedName;
         try {
-            entityNormalizedText = entityNode.getElementsByTagName(entityType)[0].firstChild.nodeValue;
+            normalizedName = entityNode.getElementsByTagName(entityType)[0].firstChild.nodeValue;
         } catch (ex) {
             // Event & Fact (BUG!!!)
-            entityNormalizedText = detectedText;
+            normalizedName = detection.text;
         }
         
-        Companion.log(entityType + ": " + entityNormalizedText + " (" + detectedText + ")");
+        if (normalizedName in map) {
+            map[normalizedName].detections.push(detection);
+        } else {
+            map[normalizedName] = {
+                entityType: entityType,
+                detections: [ detection ]
+            };
+            list.push(normalizedName);
+        }
+    }
+    
+    for (var i = 0; i < list.length; i++) {
+        var normalizedName = list[i];
+        var entity = map[normalizedName];
+        var s = [];
+        s.push(entity.entityType + ": " + normalizedName);
+        
+        for (var j = 0; j < entity.detections.length; j++) {
+            var detection = entity.detections[j];
+            s.push("  " + detection.text + " at " + detection.offset + ", " + detection.length);
+        };
+        Companion.log(s.join("\n"));
     }
 };

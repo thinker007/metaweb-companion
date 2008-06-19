@@ -1,5 +1,129 @@
 var OpenCalaisUtil = {};
 
+OpenCalaisUtil._entityTypeMap = {
+    "Anniversary": {
+        "freebaseTypes": [
+        ]
+    },
+    "City": {
+        "freebaseTypes": [
+        ]
+    },
+    "Company": {
+        "freebaseTypes": [
+        ]
+    },
+    "Continent": {
+        "freebaseTypes": [
+        ]
+    },
+    "Country": {
+        "freebaseTypes": [
+        ]
+    },
+    "Currency": {
+        "freebaseTypes": [
+        ]
+    },
+    "EmailAddress": {
+        "freebaseTypes": [
+        ]
+    },
+    "EntertainmentAwardEvent": {
+        "freebaseTypes": [
+        ]
+    },
+    "Facility": {
+        "freebaseTypes": [
+        ]
+    },
+    "FaxNumber": {
+        "freebaseTypes": [
+        ]
+    },
+    "Holiday": {
+        "freebaseTypes": [
+        ]
+    },
+    "IndustryTerm": {
+        "freebaseTypes": [
+        ]
+    },
+    "MedicalCondition": {
+        "freebaseTypes": [
+        ]
+    },
+    "Movie": {
+        "freebaseTypes": [
+        ]
+    },
+    "MusicAlbum": {
+        "freebaseTypes": [
+        ]
+    },
+    "MusicGroup": {
+        "freebaseTypes": [
+        ]
+    },
+    "NaturalDisaster": {
+        "freebaseTypes": [
+        ]
+    },
+    "NaturalFeature": {
+        "freebaseTypes": [
+        ]
+    },
+    "Organization": {
+        "freebaseTypes": [
+        ]
+    },
+    "Person": {
+        "freebaseTypes": [
+            "/people/person"
+        ]
+    },
+    "PhoneNumber": {
+        "freebaseTypes": [
+        ]
+    },
+    "Product": {
+        "freebaseTypes": [
+        ]
+    },
+    "ProvinceOrState": {
+        "freebaseTypes": [
+        ]
+    },
+    "PublishedMedium": {
+        "freebaseTypes": [
+        ]
+    },
+    "Region": {
+        "freebaseTypes": [
+        ]
+    },
+    "SportsEvent": {
+        "freebaseTypes": [
+        ]
+    },
+    "SportsGame": {
+        "freebaseTypes": [
+        ]
+    },
+    "Technology": {
+        "freebaseTypes": [
+        ]
+    },
+    "TVShow": {
+        "freebaseTypes": [
+        ]
+    },
+    "URL": {
+        "freebaseTypes": [
+        ]
+    }
+};
+
 OpenCalaisUtil.analyzeText = function(text, onDone, onError) {
     var licenseID = "an5h4pb7gyhufuusfeakhvrs";
     var payload = [
