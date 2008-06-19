@@ -12,6 +12,10 @@ Companion.log = function(msg) {
     this._consoleService.logStringMessage(msg);
 };
 
+Companion.exception = function(e) {
+    this.log(e);
+};
+
 Companion.onMenuItemCommand = function(e) {
     var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                                   .getService(Components.interfaces.nsIPromptService);
@@ -99,16 +103,32 @@ Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
         }
     }
     
+	var entries = [];
     for (var i = 0; i < list.length; i++) {
         var normalizedName = list[i];
         var entity = map[normalizedName];
-        var s = [];
-        s.push(entity.entityType + ": " + normalizedName);
-        
-        for (var j = 0; j < entity.detections.length; j++) {
-            var detection = entity.detections[j];
-            s.push("  " + detection.text + " at " + detection.offset + ", " + detection.length);
-        };
-        Companion.log(s.join("\n"));
+		var entry = {
+			name:			normalizedName,
+			freebaseTypes:	[],
+			detections:		entity.detections
+		};
+		
+		if (entity.entityType in OpenCalaisUtil.entityTypeMap) {
+			entry.freebaseTypes = [].concat(OpenCalaisUtil.entityTypeMap[entity.entityType].freebaseTypes);
+		}
+		
+		entries.push(entry);
     }
+	
+	FreebaseOracle.reconcile(entries, function() {
+		for (var i = 0; i < entries.length; i++) {
+			var entry = entries[i];
+			var rr = entry.freebaseReconciliationResult;
+			if ("uri" in rr) {
+				Companion.log(entry.name + " = " + rr.uri);
+			} else {
+				Companion.log(entry.name + " = unknown");
+			}
+		}
+	});
 };

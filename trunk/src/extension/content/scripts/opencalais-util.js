@@ -1,6 +1,6 @@
 var OpenCalaisUtil = {};
 
-OpenCalaisUtil._entityTypeMap = {
+OpenCalaisUtil.entityTypeMap = {
     "Anniversary": {
         "freebaseTypes": [
         ]
