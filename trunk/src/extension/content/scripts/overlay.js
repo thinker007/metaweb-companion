@@ -1,12 +1,4 @@
 var Companion = {};
-window.addEventListener("load", function(e) { Companion.onLoad(e); }, false);
-
-Companion.onLoad = function() {
-    // initialization code
-    this.initialized = true;
-    this.strings = document.getElementById("companion-strings");
-    this._consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-};
 
 Companion.log = function(msg) {
     this._consoleService.logStringMessage(msg);
@@ -16,6 +8,52 @@ Companion.exception = function(e) {
     this.log(e);
 };
 
+Companion.inspect = function(o) {
+    window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=800,height=600,all", o);
+};
+
+window.addEventListener("load", function(e) { Companion.onLoad(e); }, false);
+Companion.onLoad = function() {
+    this.strings = document.getElementById("companion-strings");
+    this._consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+    
+    var tabBrowser = document.getElementById("content");
+    var tabs = tabBrowser.selectedTab.parentNode;
+    tabs.addEventListener('select', Companion._onSelectTab, true);
+    //tabs.addEventListener('closetab', Companion._onCloseTab, true);
+    //We need to figure out how to dispose the session when a tab gets closed?
+    
+    Companion._onSelectTab();
+};
+
+Companion._onSelectTab = function(event) {
+    var tabBrowser = document.getElementById("content");
+    var selectedIndex = tabBrowser.selectedTab.parentNode.selectedIndex;
+    
+    var browsers = tabBrowser.browsers;
+    for (var i = 0; i < browsers.length; i++) {
+        var browser = tabBrowser.browsers[i];
+        if (i == selectedIndex) {
+            var companionWindowSession;
+	        if ("_companionWindowSession" in browser) {
+	            companionWindowSession = browser._companionWindowSession;
+	        } else { 
+	            companionWindowSession = new Companion.WindowSession(browser);
+                browser._companionWindowSession = companionWindowSession;
+            }
+            
+            companionWindowSession.showUserInterface();
+        } else if ("_companionWindowSession" in browser) {
+            browser._companionWindowSession.hideUserInterface();
+        }
+    }
+};
+
+Companion._onCloseTab = function(event) {
+    Companion.log(event);
+    Companion.inspect(event);
+};
+
 Companion.onMenuItemCommand = function(e) {
     var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                                   .getService(Components.interfaces.nsIPromptService);
@@ -23,136 +61,3 @@ Companion.onMenuItemCommand = function(e) {
                                 this.strings.getString("helloMessage"));
 };
 
-Companion.onAnalyzeCommand = function() {
-    var browser = document.getElementById("content").selectedBrowser;
-    Companion._getOpenCalaisAnnotation(browser);
-};
-
-Companion.inspect = function(o) {
-    window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=600,height=300,all", o);
-};
-
-Companion._getOpenCalaisAnnotation = function(browser) {
-    var textFragments = [];
-    
-    var processNode = function(node) {
-        switch (node.nodeType) {
-        case 3: // text node
-            textFragments.push(node.nodeValue);
-            break;
-        case 1: // element
-            var nodeName = node.nodeName.toLowerCase();
-            switch (nodeName) {
-            case "script":
-            case "input":
-            case "button":
-            case "option":
-            case "select":
-                return; // ignore
-            }
-            var childNode = node.firstChild;
-            while (childNode != null) {
-                processNode(childNode);
-                childNode = childNode.nextSibling;
-            }
-            break; 
-        }
-    };
-    processNode(browser.contentDocument.body);
-    
-    var text = textFragments.join("\n");
-    OpenCalaisUtil.analyzeText(text, function(xmlDoc) {
-        Companion._onOpenCalaisTextAnalysisResult(xmlDoc, browser)
-    });
-};
-
-Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
-    //Companion.inspect(xmlDoc);
-    
-    var root = xmlDoc.firstChild.nextSibling;
-    var entities = root.getElementsByTagName("Entities")[0].childNodes;
-    var list = [];
-    var map = {};
-    for (var i = 0 ; i < entities.length ; i++) {
-        var entityNode = entities[i];
-        var entityType = entityNode.nodeName;
-        
-        var detectionNode = entityNode.getElementsByTagName("Detection")[0];
-        var detection = {
-            text:   detectionNode.firstChild.nodeValue,
-            offset: parseInt(detectionNode.getAttribute("offset")),
-            length: parseInt(detectionNode.getAttribute("length"))
-        };
-        
-        var normalizedName;
-        try {
-            normalizedName = entityNode.getElementsByTagName(entityType)[0].firstChild.nodeValue;
-        } catch (ex) {
-            // Event & Fact (BUG!!!)
-            normalizedName = detection.text;
-        }
-        
-        if (normalizedName in map) {
-            map[normalizedName].detections.push(detection);
-        } else {
-            map[normalizedName] = {
-                entityType: entityType,
-                detections: [ detection ]
-            };
-            list.push(normalizedName);
-        }
-    }
-    
-	var entries = [];
-    for (var i = 0; i < list.length; i++) {
-        var normalizedName = list[i];
-        var entity = map[normalizedName];
-		var entry = {
-			name:			normalizedName,
-			freebaseTypes:	[],
-			detections:		entity.detections
-		};
-		
-		if (entity.entityType in OpenCalaisUtil.entityTypeMap) {
-			entry.freebaseTypes = [].concat(OpenCalaisUtil.entityTypeMap[entity.entityType].freebaseTypes);
-		}
-		
-		entries.push(entry);
-    }
-	
-	var onDoneReconciliation = function() {
-	    var ids = [];
-		for (var i = 0; i < entries.length; i++) {
-			var entry = entries[i];
-			var rr = entry.freebaseReconciliationResult;
-			if ("id" in rr) {
-			    ids.push(rr.id);
-			} else {
-				Companion.log(entry.name + " = unknown");
-			}
-		}
-		FreebaseOracle.getAllRelationships(ids, onDoneGetAllRelationships);
-	};
-	var onDoneGetAllRelationships = function(results) {
-		Companion.log("Got " + results.length + " relationships");
-		
-		var properties = {};
-		for (var i = 0; i < results.length; i++) {
-			var r = results[i];
-			properties[r.master_property] = true;
-		}
-		
-		var a = [];
-		for (var n in properties) {
-			a.push(n);
-		}
-		Companion.log(a.join("\n"));
-		
-		var database = Companion.Database.create();
-		database.loadFreebaseItems(results);
-		browser._database = database;
-		Companion.inspect(browser);
-	};
-	
-	FreebaseOracle.reconcile(entries, onDoneReconciliation);
-};

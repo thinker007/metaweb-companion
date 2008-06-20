@@ -6,14 +6,17 @@
 
 <overlay id="companion-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="scripts/overlay.js" />
-    <script src="scripts/jsonize.js" />
+    <script src="scripts/window-session.js" />
+    <script src="scripts/page-session.js" />
 	<script src="scripts/opencalais-util.js" />
+	
 	<script src="scripts/oracles/freebase.js" />
 	
 	<script src="scripts/util/string.js" />
 	<script src="scripts/util/date.js" />
 	<script src="scripts/util/set.js" />
 	<script src="scripts/util/listener-queue.js" />
+	<script src="scripts/util/jsonize.js" />
 	
 	<script src="scripts/data/database.js" />
 	<script src="scripts/data/database-l10n.js" />
@@ -26,22 +29,36 @@
 	    <stringbundle id="companion-strings" src="chrome://companion/locale/companion.properties"/>
 	</stringbundleset>
 	
-	<menupopup id="menu_ToolsPopup">
-	    <menuitem id="companion-hello" label="&companion.label;" 
-	              oncommand="Companion.onMenuItemCommand(event);"/>
-	</menupopup>
-	
-	<hbox id="browser">
-	    <!-- ==================== Right-side Pane ==================== -->
-	    <splitter id="companion-sidePaneSplitter" 
-	    	insertafter="appcontent"
-	    	/>
-	    <vbox id="companion-sidePane"
-	    	insertafter="companion-sidePaneSplitter"
-	    	persist="width"
-	    	>
-	    	<label value="hello" />
-	    	<button label="Analyze" oncommand="Companion.onAnalyzeCommand();" />
-	    </vbox>
-	</hbox>	
+    <menupopup id="menu_ToolsPopup">
+        <menuitem id="companion-hello" label="&companion.label;" 
+                  oncommand="Companion.onMenuItemCommand(event);"/>
+    </menupopup>
+    
+    <hbox id="browser">
+        <!-- ==================== Right-side Pane ==================== -->
+        <splitter id="companion-sidePaneSplitter" 
+            insertafter="appcontent"
+            />
+        <vbox id="companion-sidePane"
+            insertafter="companion-sidePaneSplitter"
+            persist="width"
+            >
+            
+            <deck id="companion-crossWindowDeck" flex="1">
+            </deck>
+            
+            <vbox id="companion-windowSessionPage-template" hidden="true">
+                <!-- interaction stage deck -->
+                <deck flex="1">
+                    <!-- start stage -->
+                    <vbox flex="1">
+                        <label value="Hello!" />
+                        <button label="Analyze" />
+                        <listbox flex = "1" />
+                        <listbox flex = "1" />
+                    </vbox>
+                </deck>
+            </vbox>
+        </vbox>
+    </hbox>
 </overlay>
