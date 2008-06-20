@@ -29,7 +29,7 @@ Companion.onAnalyzeCommand = function() {
 };
 
 Companion.inspect = function(o) {
-    window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=600,height=300", o);
+    window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=600,height=300,all", o);
 };
 
 Companion._getOpenCalaisAnnotation = function(browser) {
@@ -147,6 +147,11 @@ Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
 			a.push(n);
 		}
 		Companion.log(a.join("\n"));
+		
+		var database = Companion.Database.create();
+		database.loadFreebaseItems(results);
+		browser._database = database;
+		Companion.inspect(browser);
 	};
 	
 	FreebaseOracle.reconcile(entries, onDoneReconciliation);
