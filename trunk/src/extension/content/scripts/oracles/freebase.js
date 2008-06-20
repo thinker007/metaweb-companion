@@ -1,46 +1,31 @@
 var FreebaseOracle = {};
-FreebaseOracle._batchSize = 5;
 
 FreebaseOracle.reconcile = function(entries, onDone) {
-    var state = { index: 0 };
-    var doNext = function() {
-        if (state.index >= entries.length) {
-            if (typeof onDone == "function") {
-                onDone();
-            }
-            return;
-        }
-        
-        var start = state.index;
-        var end = Math.min(start + FreebaseOracle._batchSize, entries.length);
-        state.index = end;
-        
-        Companion.log("Reconciling entries " + start + " to " + end + " of " + entries.length);
-    
-        FreebaseOracle._reconcileBatch(entries, start, end, doNext);
-    };
-    doNext();
-};
-
-FreebaseOracle._reconcileBatch = function(entries, start, end, cont) {
     var a = [];
-    for (var i = start; i < end; i++) {
+    for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         a.push({ name: entry.name, freebaseTypes: entry.freebaseTypes });
     }
     
-    var url = "http://batchreconcile.dfhuynh.user.acre.metaweb.com/acre/";
+    var url = "http://localhost:8192/reconciler/";
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+	try {
+		url = prefs.getCharPref("metaweb.companion.reconcilerService");
+	} catch (e) {
+	}
+	Companion.log("Using reconciler service at " + url);
+
     var request = new XMLHttpRequest();
     request.open("POST", url, true);
     request.onreadystatechange = function() { 
-        FreebaseOracle._reconcileBatchStateChangeCallback(request, entries, start, end, cont) 
+        FreebaseOracle._reconcileBatchStateChangeCallback(request, entries, onDone) 
     };
     request.send(jsonize({ entries: a }));
 };
 
-FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, start, end, cont) {
+FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, cont) {
     if (request.readyState != 4) {
-        Companion.log("working...");
+        //Companion.log("working...");
         return;
     }
     
@@ -52,17 +37,19 @@ FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, s
             " text = " + request.responseText
         );
         
-        for (var i = start; i < end; i++) {
+        for (var i = 0; i < entries.length; i++) {
             entries[i].freebaseReconciliationResult = {
                 error: "unknown"
             };
         }
     } else {
 	    try {
+			//Companion.log(request.responseText);
 	        var o = eval("(" + request.responseText + ")");
+			
 	        var entries2 = o.entries;
 	        for (var i = 0; i < entries2.length; i++) {
-	            var entry = entries[start + i];
+	            var entry = entries[i];
 	            var entry2 = entries2[i];
 	            if ("id" in entry2) {
 	                entry.freebaseReconciliationResult = {
@@ -82,14 +69,37 @@ FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, s
 };
 
 FreebaseOracle.getAllRelationships = function(ids, onDone) {
-    Companion.log("getAllRelationships for " + ids.length + " ids");
+	var state = { index: 0 };
+	var results = [];
+	var doNext = function() {
+		if (state.index >= ids.length) {
+			onDone(results);
+		} else {
+			var start = state.index;
+			var end = Math.min(start + 10, ids.length);
+			
+			state.index = end;
+			
+			Companion.log("getAllRelationships: " + start + " - " + end + " of " + ids.length + " ids");
+	
+			FreebaseOracle._getAllRelationshipsInBatch(ids, start, end, function(results2) {
+				results = results.concat(results2);
+				doNext();
+			});
+		}
+	};
+	doNext();
+}
+
+FreebaseOracle._getAllRelationshipsInBatch = function(ids, start, end, onDone) {
+	var ids2 = ids.slice(start, end);
     var forwardQuery = [
 		{
 		    "master_property" : null,
 		    "reverse" : null,
 		    "source" : {
 		      "id" : null,
-		      "id|=" : ids
+		      "id|=" : ids2
 		    },
 		    "target" : [
 		      {
@@ -97,16 +107,17 @@ FreebaseOracle.getAllRelationships = function(ids, onDone) {
 		        "name" : null
 		      }
 		    ],
-		    "type" : "/type/link"
+		    "type" : "/type/link",
+			"limit" : 1000
 		}
 	];
 	var backwardQuery = [
-	   {
+	    {
             "master_property" : null,
             "reverse" : null,
             "target" : {
               "id" : null,
-              "id|=" : ids
+              "id|=" : ids2
             },
             "source" : [
               {
@@ -114,7 +125,8 @@ FreebaseOracle.getAllRelationships = function(ids, onDone) {
                 "name" : null
               }
             ],
-            "type" : "/type/link"
+            "type" : "/type/link",
+			"limit" : 1000
         }
     ];
 	var queries = {
@@ -130,7 +142,34 @@ FreebaseOracle.getAllRelationships = function(ids, onDone) {
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("Content-Length", body.length);
     request.onreadystatechange = function() { 
-        if (request.readyState == 4) Companion.log(request.responseText); 
+		FreebaseOracle._getAllRelationshipsStateChangeCallback(request, onDone);
     };
     request.send(body);
+};
+
+FreebaseOracle._getAllRelationshipsStateChangeCallback = function(request, onDone) {
+    if (request.readyState != 4) {
+        //Companion.log("working...");
+        return;
+    }
+    
+    if (request.status != 200) {
+        Companion.log(
+            "GetAllRelationships error: " +
+            "state = " + request.readyState + 
+            " status = " + request.status +
+            " text = " + request.responseText
+        );
+        
+        for (var i = 0; i < entries.length; i++) {
+            entries[i].freebaseReconciliationResult = {
+                error: "unknown"
+            };
+        }
+    } else {
+		//Companion.log(request.responseText);
+		var o = eval("(" + request.responseText + ")");
+		var compoundResults = o.q1.result.concat(o.q2.result);
+		onDone(compoundResults);
+	}
 };
