@@ -121,14 +121,16 @@ Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
     }
 	
 	FreebaseOracle.reconcile(entries, function() {
+	    var ids = [];
 		for (var i = 0; i < entries.length; i++) {
 			var entry = entries[i];
 			var rr = entry.freebaseReconciliationResult;
-			if ("uri" in rr) {
-				Companion.log(entry.name + " = " + rr.uri);
+			if ("id" in rr) {
+			    ids.push(rr.id);
 			} else {
 				Companion.log(entry.name + " = unknown");
 			}
 		}
+		FreebaseOracle.getAllRelationships(ids);
 	});
 };

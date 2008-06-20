@@ -217,7 +217,6 @@ jsonize.converters = {
 	            for (var n in x) {
 	                if (x.hasOwnProperty(n)) {
 	                    var v = x[n];
-	                    var f = jsonize.converters[typeof v];
 	                    var n2 = fieldNameEncoder.encode(n);
 	                    if (breakLines) {
 	                        writer.appendIndent();
@@ -233,7 +232,12 @@ jsonize.converters = {
 	                    }
 	                    
 	                    path.unshift({ field: n });
-	                    f(v, contextualize(context, path), writer);
+	                    if (v != null) {
+                            var f = jsonize.converters[typeof v];
+	                       f(v, contextualize(context, path), writer);
+	                    } else {
+	                       writer.append("null");
+	                    }
 	                    path.shift();
 	                    
 	                    count--;
