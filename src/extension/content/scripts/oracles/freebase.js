@@ -1,5 +1,5 @@
 var FreebaseOracle = {};
-FreebaseOracle._batchSize = 10;
+FreebaseOracle._batchSize = 5;
 
 FreebaseOracle.reconcile = function(entries, onDone) {
     var state = { index: 0 };
@@ -18,7 +18,7 @@ FreebaseOracle.reconcile = function(entries, onDone) {
         Companion.log("Reconciling entries " + start + " to " + end + " of " + entries.length);
     
         FreebaseOracle._reconcileBatch(entries, start, end, doNext);
-    };Companion.log("here");
+    };
     doNext();
 };
 
@@ -64,9 +64,9 @@ FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, s
 	        for (var i = 0; i < entries2.length; i++) {
 	            var entry = entries[start + i];
 	            var entry2 = entries2[i];
-	            if ("uri" in entry2) {
+	            if ("id" in entry2) {
 	                entry.freebaseReconciliationResult = {
-	                    uri: entry2.uri
+	                    id: entry2.id
 	                };
 	            } else {
 	                entry.freebaseReconciliationResult = {
@@ -79,4 +79,58 @@ FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, s
 	    }
     }
     cont();
+};
+
+FreebaseOracle.getAllRelationships = function(ids, onDone) {
+    Companion.log("getAllRelationships for " + ids.length + " ids");
+    var forwardQuery = [
+		{
+		    "master_property" : null,
+		    "reverse" : null,
+		    "source" : {
+		      "id" : null,
+		      "id|=" : ids
+		    },
+		    "target" : [
+		      {
+		        "id" : null,
+		        "name" : null
+		      }
+		    ],
+		    "type" : "/type/link"
+		}
+	];
+	var backwardQuery = [
+	   {
+            "master_property" : null,
+            "reverse" : null,
+            "target" : {
+              "id" : null,
+              "id|=" : ids
+            },
+            "source" : [
+              {
+                "id" : null,
+                "name" : null
+              }
+            ],
+            "type" : "/type/link"
+        }
+    ];
+	var queries = {
+	   "q1": { "query": forwardQuery },
+	   "q2": { "query": backwardQuery }
+	};
+
+    var url = 'http://freebase.com/api/service/mqlread?';
+    var body = 'queries=' + encodeURIComponent(jsonize(queries));
+    
+    var request = new XMLHttpRequest();
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("Content-Length", body.length);
+    request.onreadystatechange = function() { 
+        if (request.readyState == 4) Companion.log(request.responseText); 
+    };
+    request.send(body);
 };
