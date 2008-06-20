@@ -120,7 +120,7 @@ Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
 		entries.push(entry);
     }
 	
-	FreebaseOracle.reconcile(entries, function() {
+	var onDoneReconciliation = function() {
 	    var ids = [];
 		for (var i = 0; i < entries.length; i++) {
 			var entry = entries[i];
@@ -131,6 +131,23 @@ Companion._onOpenCalaisTextAnalysisResult = function(xmlDoc, browser) {
 				Companion.log(entry.name + " = unknown");
 			}
 		}
-		FreebaseOracle.getAllRelationships(ids);
-	});
+		FreebaseOracle.getAllRelationships(ids, onDoneGetAllRelationships);
+	};
+	var onDoneGetAllRelationships = function(results) {
+		Companion.log("Got " + results.length + " relationships");
+		
+		var properties = {};
+		for (var i = 0; i < results.length; i++) {
+			var r = results[i];
+			properties[r.master_property] = true;
+		}
+		
+		var a = [];
+		for (var n in properties) {
+			a.push(n);
+		}
+		Companion.log(a.join("\n"));
+	};
+	
+	FreebaseOracle.reconcile(entries, onDoneReconciliation);
 };
