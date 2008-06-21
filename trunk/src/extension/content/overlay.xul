@@ -37,6 +37,7 @@
     <hbox id="browser">
         <!-- ==================== Right-side Pane ==================== -->
         <splitter id="companion-sidePaneSplitter" 
+            style="border-right: none;"
             insertafter="appcontent"
             />
         <vbox id="companion-sidePane"
@@ -44,20 +45,49 @@
             persist="width"
             >
             
-            <deck id="companion-crossWindowDeck" flex="1">
+            <label value="Metaweb Companion" style="padding: 2px; background: #888; color: white; margin: 0;" />
+            <deck id="companion-crossWindowDeck" flex="1" style="padding: 5px;">
             </deck>
             
             <vbox id="companion-windowSessionPage-template" hidden="true">
                 <!-- interaction stage deck -->
-                <deck flex="1">
-                    <!-- start stage -->
-                    <vbox flex="1">
-                        <label value="Hello!" />
-                        <button label="Analyze" />
-                        <listbox flex = "1" />
-                        <listbox flex = "1" />
-                    </vbox>
-                </deck>
+                <vbox flex="1" />
+            </vbox>
+            
+            <!-- start stage -->
+            <vbox id="companion-pageSession-startStagePage" flex="1" hidden="true">
+                <description>
+                    Metaweb Companion helps you explore the information on this page
+                    beyond what's explicitly on the page itself.
+                </description>
+                <spacer />
+                <hbox>
+                    <button label="Analyze" />
+                    <spacer flex="1" />
+                </hbox>
+            </vbox>
+            
+            <!-- activating stage -->
+            <vbox id="companion-pageSession-activatingStagePage" flex="1" hidden="true">
+                <description>
+                    Metaweb Companion helps you explore the information on this page
+                    beyond what's explicitly on the page itself.
+                </description>
+                <spacer />
+                <progressmeter mode="undetermined" />
+                <spacer />
+                <listbox disabled="true" flex="1" />
+            </vbox>
+            
+            <!-- active-augmenting stage -->
+            <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1" hidden="true">
+                <hbox>
+                    <spacer flex="1" />
+                    <button label="Re-Analyze" />
+                </hbox>
+                <listbox flex = "1" />
+                <splitter />
+                <listbox flex = "1" />
             </vbox>
         </vbox>
     </hbox>
