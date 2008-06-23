@@ -185,7 +185,7 @@ Companion.PageSession.prototype._onOpenCalaisTextAnalysisResult = function(xmlDo
     }
     
     if (this._dom != null) {
-        this._dom.logListbox.appendItem("Reconciling names with Freebase...", "");
+        this._dom.logListbox.appendItem("Reconciling " + entries.length + " name(s) with Freebase...", "");
     }
     
     FreebaseOracle.reconcile(
@@ -214,7 +214,10 @@ Companion.PageSession.prototype._onDoneReconciliation = function(entries) {
     
     FreebaseOracle.getAllRelationships(
         ids, 
-        function(results) { self._onDoneGetAllRelationships(ids, results); }
+        function(results) { self._onDoneGetAllRelationships(ids, results); },
+        (this._dom != null) ?
+            function (s) { self._dom.logListbox.appendItem(s, s); } :
+            function (s) {}
     );
 };
 

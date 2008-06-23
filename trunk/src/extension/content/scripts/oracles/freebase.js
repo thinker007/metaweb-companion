@@ -68,7 +68,7 @@ FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, c
     cont();
 };
 
-FreebaseOracle.getAllRelationships = function(ids, onDone) {
+FreebaseOracle.getAllRelationships = function(ids, onDone, onStatus) {
 	var state = { index: 0 };
 	var results = [];
 	var doNext = function() {
@@ -80,9 +80,9 @@ FreebaseOracle.getAllRelationships = function(ids, onDone) {
 			
 			state.index = end;
 			
-			Companion.log("getAllRelationships: " + start + " - " + end + " of " + ids.length + " ids");
-	
 			FreebaseOracle._getAllRelationshipsInBatch(ids, start, end, function(results2) {
+                onStatus("Got " + results2.length + " relationship(s) for entities " + start + " - " + end + " of " + ids.length);
+    
 				results = results.concat(results2);
 				doNext();
 			});
