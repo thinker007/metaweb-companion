@@ -1,6 +1,6 @@
-var OpenCalaisUtil = {};
+var OpenCalaisService = {};
 
-OpenCalaisUtil.entityTypeMap = {
+OpenCalaisService.entityTypeMap = {
     "Anniversary": {
         "freebaseTypes": [
         ]
@@ -142,7 +142,7 @@ OpenCalaisUtil.entityTypeMap = {
     }
 };
 
-OpenCalaisUtil.analyzeText = function(text, onDone, onError) {
+OpenCalaisService.analyzeText = function(text, onDone, onError) {
     var licenseID = "an5h4pb7gyhufuusfeakhvrs";
     var payload = [
         "UID=0",
@@ -167,12 +167,12 @@ OpenCalaisUtil.analyzeText = function(text, onDone, onError) {
     
     /*
     request.open("POST", "http://api.opencalais.com/enlighten/calais.asmx/Enlighten", true);
-    request.onreadystatechange = function() { OpenCalaisUtil._stateChangeCallback(job); };
+    request.onreadystatechange = function() { OpenCalaisService._stateChangeCallback(job); };
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("Content-Length", payload.length);
     */
     request.open("POST", "http://sws.clearforest.com/ws/sws.asmx/TagIT", true);
-    request.onreadystatechange = function() { OpenCalaisUtil._stateChangeCallback(job); };
+    request.onreadystatechange = function() { OpenCalaisService._stateChangeCallback(job); };
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader('User-Agent', 'Gnosis (compatible; Mozilla 5.0, Yoav Gever)');
     request.setRequestHeader("Content-Length", payload.length);
@@ -180,7 +180,7 @@ OpenCalaisUtil.analyzeText = function(text, onDone, onError) {
     request.send(payload);
 };
 
-OpenCalaisUtil._stateChangeCallback = function(job) {
+OpenCalaisService._stateChangeCallback = function(job) {
     var request = job.request;
     //Companion.log(request.readyState);
     if (request.readyState != 4) {

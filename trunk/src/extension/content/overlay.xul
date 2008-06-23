@@ -8,10 +8,7 @@
 	<script src="scripts/overlay.js" />
     <script src="scripts/window-session.js" />
     <script src="scripts/page-session.js" />
-	<script src="scripts/opencalais-util.js" />
-	
-	<script src="scripts/services/freebase.js" />
-	
+    
 	<script src="scripts/util/string.js" />
 	<script src="scripts/util/date.js" />
 	<script src="scripts/util/set.js" />
@@ -25,6 +22,9 @@
 	<script src="scripts/data/functions.js" />
 	<script src="scripts/data/collection.js" />
 	
+    <script src="scripts/services/opencalais.js" />
+    <script src="scripts/services/freebase.js" />
+    
 	<stringbundleset id="stringbundleset">
 	    <stringbundle id="companion-strings" src="chrome://companion/locale/companion.properties"/>
 	</stringbundleset>
