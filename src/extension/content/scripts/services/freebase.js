@@ -1,6 +1,6 @@
-var FreebaseOracle = {};
+var FreebaseService = {};
 
-FreebaseOracle.reconcile = function(entries, onDone) {
+FreebaseService.reconcile = function(entries, onDone) {
     var a = [];
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
@@ -18,12 +18,12 @@ FreebaseOracle.reconcile = function(entries, onDone) {
     var request = new XMLHttpRequest();
     request.open("POST", url, true);
     request.onreadystatechange = function() { 
-        FreebaseOracle._reconcileBatchStateChangeCallback(request, entries, onDone) 
+        FreebaseService._reconcileBatchStateChangeCallback(request, entries, onDone) 
     };
     request.send(jsonize({ entries: a }));
 };
 
-FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, cont) {
+FreebaseService._reconcileBatchStateChangeCallback = function(request, entries, cont) {
     if (request.readyState != 4) {
         //Companion.log("working...");
         return;
@@ -68,7 +68,7 @@ FreebaseOracle._reconcileBatchStateChangeCallback = function(request, entries, c
     cont();
 };
 
-FreebaseOracle.getAllRelationships = function(ids, onDone, onStatus) {
+FreebaseService.getAllRelationships = function(ids, onDone, onStatus) {
 	var state = { index: 0 };
 	var results = [];
 	var doNext = function() {
@@ -80,7 +80,7 @@ FreebaseOracle.getAllRelationships = function(ids, onDone, onStatus) {
 			
 			state.index = end;
 			
-			FreebaseOracle._getAllRelationshipsInBatch(ids, start, end, function(results2) {
+			FreebaseService._getAllRelationshipsInBatch(ids, start, end, function(results2) {
                 onStatus("Got " + results2.length + " relationship(s) for entities " + start + " - " + end + " of " + ids.length);
     
 				results = results.concat(results2);
@@ -91,7 +91,7 @@ FreebaseOracle.getAllRelationships = function(ids, onDone, onStatus) {
 	doNext();
 }
 
-FreebaseOracle._getAllRelationshipsInBatch = function(ids, start, end, onDone) {
+FreebaseService._getAllRelationshipsInBatch = function(ids, start, end, onDone) {
 	var ids2 = ids.slice(start, end);
     var forwardQuery = [
 		{
@@ -142,12 +142,12 @@ FreebaseOracle._getAllRelationshipsInBatch = function(ids, start, end, onDone) {
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("Content-Length", body.length);
     request.onreadystatechange = function() { 
-		FreebaseOracle._getAllRelationshipsStateChangeCallback(request, onDone);
+		FreebaseService._getAllRelationshipsStateChangeCallback(request, onDone);
     };
     request.send(body);
 };
 
-FreebaseOracle._getAllRelationshipsStateChangeCallback = function(request, onDone) {
+FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDone) {
     if (request.readyState != 4) {
         //Companion.log("working...");
         return;

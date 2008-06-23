@@ -124,7 +124,7 @@ Companion.PageSession.prototype._getOpenCalaisAnnotation = function() {
     processNode(this._windowSession.browser.contentDocument.body);
     
     var text = textFragments.join("\n");
-    OpenCalaisUtil.analyzeText(text, function(xmlDoc) {
+    OpenCalaisService.analyzeText(text, function(xmlDoc) {
         self._onOpenCalaisTextAnalysisResult(xmlDoc);
     });
 };
@@ -177,8 +177,8 @@ Companion.PageSession.prototype._onOpenCalaisTextAnalysisResult = function(xmlDo
             detections:     entity.detections
         };
         
-        if (entity.entityType in OpenCalaisUtil.entityTypeMap) {
-            entry.freebaseTypes = [].concat(OpenCalaisUtil.entityTypeMap[entity.entityType].freebaseTypes);
+        if (entity.entityType in OpenCalaisService.entityTypeMap) {
+            entry.freebaseTypes = [].concat(OpenCalaisService.entityTypeMap[entity.entityType].freebaseTypes);
         }
         
         entries.push(entry);
@@ -188,7 +188,7 @@ Companion.PageSession.prototype._onOpenCalaisTextAnalysisResult = function(xmlDo
         this._dom.logListbox.appendItem("Reconciling " + entries.length + " name(s) with Freebase...", "");
     }
     
-    FreebaseOracle.reconcile(
+    FreebaseService.reconcile(
         entries, 
         function() { self._onDoneReconciliation(entries); }
     );
@@ -212,7 +212,7 @@ Companion.PageSession.prototype._onDoneReconciliation = function(entries) {
         this._dom.logListbox.appendItem("Retrieving relationships from Freebase...", "");
     }
     
-    FreebaseOracle.getAllRelationships(
+    FreebaseService.getAllRelationships(
         ids, 
         function(results) { self._onDoneGetAllRelationships(ids, results); },
         (this._dom != null) ?
