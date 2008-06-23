@@ -10,7 +10,7 @@
     <script src="scripts/page-session.js" />
 	<script src="scripts/opencalais-util.js" />
 	
-	<script src="scripts/oracles/freebase.js" />
+	<script src="scripts/services/freebase.js" />
 	
 	<script src="scripts/util/string.js" />
 	<script src="scripts/util/date.js" />
