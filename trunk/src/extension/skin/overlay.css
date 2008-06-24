@@ -7,3 +7,11 @@
 #companion-sidePane {
 	width: 200px;
 }
+
+listbox.companion-pageSession-activatingStagePage-logList {
+	border-top-style:      none;
+	border-bottom-style:   none;
+	border-left-style:     none;
+	border-right-style:    none;
+	background-color:      transparent;
+}

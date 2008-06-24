@@ -80,7 +80,8 @@
                 <spacer />
                 <progressmeter mode="undetermined" />
                 <spacer />
-                <listbox disabled="true" flex="1" />
+                <listbox disabled="true" flex="1"
+                    class="companion-pageSession-activatingStagePage-logList" />
             </vbox>
             
             <!-- active-augmenting stage -->
