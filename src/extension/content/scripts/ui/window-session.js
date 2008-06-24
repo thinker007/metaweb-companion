@@ -97,14 +97,7 @@ Companion.WindowSession.prototype._updateUserInterface = function() {
         if (this._currentPageSession != null) {
             this._currentPageSession.uninstallUserInterface();
         }
-        pageSession.installUserInterface();
-        
         this._currentPageSession = pageSession;
+        this._currentPageSession.installUserInterface(); 
     }
 };
-
-Companion.WindowSession.prototype._onAnalyzeCommand = function() {
-    var pageSession = this.getCurrentPageSession(true);
-    pageSession.onAnalyzeCommand();
-};
-
