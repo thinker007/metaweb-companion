@@ -6,8 +6,12 @@
 
 <overlay id="companion-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="scripts/overlay.js" />
-    <script src="scripts/window-session.js" />
-    <script src="scripts/page-session.js" />
+	
+    <script src="scripts/ui/window-session.js" />
+    <script src="scripts/ui/page-session.js" />
+    <script src="scripts/ui/session-stages/start-stage.js" />
+    <script src="scripts/ui/session-stages/activating-stage.js" />
+    <script src="scripts/ui/session-stages/active-augmenting-stage.js" />
     
 	<script src="scripts/util/string.js" />
 	<script src="scripts/util/date.js" />
