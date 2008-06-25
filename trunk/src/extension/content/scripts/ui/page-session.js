@@ -76,6 +76,6 @@ Companion.PageSession.prototype.analyze = function() {
 };
 
 Companion.PageSession.prototype.augment = function(ids) {
-    this.ids = ids;
+    this.collection = Companion.Collection.createGivenCollection("default", this.database, ids);
     this._switchStage(Companion.PageSession.STAGE_ACTIVE_AUGMENTING); 
 };

@@ -14,6 +14,16 @@ Companion.Collection = function(id, database) {
     this._restrictedItems = null;
 };
 
+Companion.Collection.createGivenCollection = function(id, database, ids) {
+    var collection = new Companion.Collection(id, database);
+	collection._items = new Companion.Set(ids);
+    collection._internalUpdate = function(){};
+    
+    Companion.Collection._initializeBasicCollection(collection, database);
+    
+    return collection;
+};
+
 Companion.Collection.createAllItemsCollection = function(id, database) {
     var collection = new Companion.Collection(id, database);
     collection._internalUpdate = Companion.Collection._allItemsCollection_update;

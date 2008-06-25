@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?xml-stylesheet href="chrome://companion/skin/overlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/skin/overlay-html.css" type="text/css"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://companion/locale/companion.dtd">
 
-<overlay id="companion-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="companion-overlay" 
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+	
 	<script src="scripts/overlay.js" />
 	
     <script src="scripts/ui/window-session.js" />
@@ -13,11 +17,15 @@
     <script src="scripts/ui/session-stages/activating-stage.js" />
     <script src="scripts/ui/session-stages/active-augmenting-stage.js" />
     
+	<script src="scripts/ui/facets/facet-util.js" />
+	<script src="scripts/ui/facets/list-facet.js" />
+	
 	<script src="scripts/util/string.js" />
 	<script src="scripts/util/date.js" />
 	<script src="scripts/util/set.js" />
 	<script src="scripts/util/listener-queue.js" />
 	<script src="scripts/util/jsonize.js" />
+	<script src="scripts/util/hinted-textbox.js" />
 	
 	<script src="scripts/data/database.js" />
 	<script src="scripts/data/database-l10n.js" />
@@ -67,48 +75,86 @@
             <label value="Metaweb Companion" style="padding: 2px; background: #888; color: white; margin: 0;" />
             <deck id="companion-crossWindowDeck" flex="1" style="padding: 5px;">
             </deck>
-            
-            <vbox id="companion-windowSessionPage-template" hidden="true">
-                <!-- interaction stage deck -->
-                <vbox flex="1" />
-            </vbox>
-            
-            <!-- start stage -->
-            <vbox id="companion-pageSession-startStagePage" flex="1" hidden="true">
-                <description>
-                    Metaweb Companion helps you explore the information on this page
-                    beyond what's explicitly on the page itself.
-                </description>
-                <spacer />
-                <hbox>
-                    <button label="Analyze" />
-                    <spacer flex="1" />
-                </hbox>
-            </vbox>
-            
-            <!-- activating stage -->
-            <vbox id="companion-pageSession-activatingStagePage" flex="1" hidden="true">
-                <description>
-                    Metaweb Companion helps you explore the information on this page
-                    beyond what's explicitly on the page itself.
-                </description>
-                <spacer />
-                <progressmeter mode="undetermined" />
-                <spacer />
-                <listbox disabled="true" flex="1"
-                    class="companion-pageSession-activatingStagePage-logList" />
-            </vbox>
-            
-            <!-- active-augmenting stage -->
-            <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1" hidden="true">
-                <hbox>
-                    <spacer flex="1" />
-                    <button label="Re-Analyze" />
-                </hbox>
-                <listbox flex = "1" />
-                <splitter />
-                <listbox flex = "1" />
-            </vbox>
+			
+			<!-- all templates -->
+			<box hidden="true">
+	            <vbox id="companion-windowSessionPage-template">
+	                <!-- interaction stage deck -->
+	                <vbox flex="1" />
+	            </vbox>
+	            
+	            <!-- start stage -->
+	            <vbox id="companion-pageSession-startStagePage" flex="1">
+	                <description>
+	                    Metaweb Companion helps you explore the information on this page
+	                    beyond what's explicitly on the page itself.
+	                </description>
+	                <spacer />
+	                <hbox>
+	                    <button label="Analyze" />
+	                    <spacer flex="1" />
+	                </hbox>
+	            </vbox>
+	            
+	            <!-- activating stage -->
+	            <vbox id="companion-pageSession-activatingStagePage" flex="1">
+	                <description>
+	                    Metaweb Companion helps you explore the information on this page
+	                    beyond what's explicitly on the page itself.
+	                </description>
+	                <spacer />
+	                <progressmeter mode="undetermined" />
+	                <spacer />
+	                <listbox disabled="true" flex="1"
+	                    class="companion-pageSession-activatingStagePage-logList" />
+	            </vbox>
+	            
+	            <!-- active-augmenting stage -->
+	            <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1">
+	                <hbox>
+	                    <spacer flex="1" />
+	                    <button label="Re-Analyze" />
+	                </hbox>
+					<separator class="groove" />
+					
+	                <vbox class="companion-typeFacet" />
+	                <splitter class="companion-facetContainer-splitter" />
+	                <scrollbox orient="vertical" flex="1" style="overflow: auto;" />
+				</vbox>
+				
+	            <!-- active-meta stage -->
+	            <vbox id="companion-pageSession-activeMetaStagePage" flex="1">
+	                <hbox>
+	                    <spacer flex="1" />
+	                    <button label="Re-Analyze" />
+	                </hbox>
+	                <listbox flex = "1" />
+	                <splitter />
+	                <listbox flex = "1" />
+	            </vbox>
+				
+	            <!-- facet template -->
+	            <box id="companion-facet-template">
+	                <hbox class="companion-facet-header" id="companion-facet-header"
+						xmlns:html="http://www.w3.org/1999/xhtml">
+	                    <box flex="1">
+							<html:div><html:span></html:span> <html:a></html:a></html:div>
+						</box>
+						<html:div style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:div>
+	                </hbox>
+	                <html:div class="companion-facet-quickFilter" id="companion-facet-quickFilter">
+	                    <html:input></html:input>
+	                </html:div>
+	                <tree class="companion-facet-valuesContainer" flex="1" seltype="multiple" id="companion-facet-valuesContainer">
+	                    <treecols>
+	                        <treecol id="value-column" label="value" flex="1" />
+	                        <treecol id="count-column" label="#" flex="0" style="width: 4em; text-align: right;" />
+	                    </treecols>
+	                    <treechildren />
+	                </tree>
+	            </box>
+			</box><!-- all templates -->
+			
         </vbox>
     </hbox>
 </overlay>
