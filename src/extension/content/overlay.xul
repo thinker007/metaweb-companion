@@ -33,20 +33,35 @@
 	    <stringbundle id="companion-strings" src="chrome://companion/locale/companion.properties"/>
 	</stringbundleset>
 	
-    <menupopup id="menu_ToolsPopup">
-        <menuitem id="companion-hello" label="&companion.label;" 
-                  oncommand="Companion.onMenuItemCommand(event);"/>
+    <!-- ==================== Commands, keys, and menus ==================== -->
+    <commandset id="mainCommandSet">
+        <command id="companion-toggleSidepane-cmd" oncommand="Companion.toggleSidepane()"/>
+    </commandset>
+	
+    <keyset id="mainKeyset">
+        <key id="companion-toggleSidepane-key" keycode="VK_F9"
+                command="companion-toggleSidepane-cmd" />
+    </keyset>
+	
+    <menupopup id="menu_viewPopup">
+        <menuitem id="companion-toggleSidepane-menuItem"
+			insertbefore="toggle_taskbar"
+            label="&companion.menuItem.toggleSidepane.label;"
+			type="checkbox"
+            key="companion-toggleSidepane-key"
+			command="companion-toggleSidepane-cmd" />
     </menupopup>
     
     <hbox id="browser">
         <!-- ==================== Right-side Pane ==================== -->
         <splitter id="companion-sidePaneSplitter" 
-            style="border-right: none;"
             insertafter="appcontent"
+			hidden="true"
             />
         <vbox id="companion-sidePane"
             insertafter="companion-sidePaneSplitter"
             persist="width"
+			hidden="true"
             >
             
             <label value="Metaweb Companion" style="padding: 2px; background: #888; color: white; margin: 0;" />

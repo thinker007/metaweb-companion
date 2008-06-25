@@ -1,4 +1,6 @@
-var Companion = {};
+var Companion = {
+	sidepaneHidden: true
+};
 
 Companion.log = function(msg) {
     this._consoleService.logStringMessage(msg);
@@ -54,10 +56,11 @@ Companion._onCloseTab = function(event) {
     Companion.inspect(event);
 };
 
-Companion.onMenuItemCommand = function(e) {
-    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                  .getService(Components.interfaces.nsIPromptService);
-    promptService.alert(window, this.strings.getString("helloMessageTitle"),
-                                this.strings.getString("helloMessage"));
+Companion.toggleSidepane = function() {
+	Companion.sidepaneHidden = !Companion.sidepaneHidden;
+	
+	document.getElementById("companion-sidePaneSplitter").hidden = Companion.sidepaneHidden;
+	document.getElementById("companion-sidePane").hidden = Companion.sidepaneHidden;
+	document.getElementById("companion-toggleSidepane-cmd").
+		setAttribute("checked", !Companion.sidepaneHidden);
 };
-
