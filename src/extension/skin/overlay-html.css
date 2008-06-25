@@ -1,0 +1,23 @@
+@namespace url("http://www.w3.org/1999/xhtml");
+
+a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+div.companion-facet-quickFilter {
+    padding:    2px;
+    margin:     2px 0px;
+    background: white;
+}
+
+div.companion-facet-quickFilter input {
+    border:     none;
+    font-size:  8pt;
+    width:      100%;
+}
+
+div.companion-facet-quickFilter input.companion-hintedTextbox-empty {
+    color:  #aaa;
+}

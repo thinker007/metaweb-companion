@@ -14,6 +14,15 @@ Companion.inspect = function(o) {
     window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=800,height=600,all", o);
 };
 
+Companion.cancelEvent = function(evt) {
+    evt.returnValue = false;
+    evt.cancelBubble = true;
+    if ("preventDefault" in evt) {
+        evt.preventDefault();
+    }
+    return false;
+};
+
 window.addEventListener("load", function(e) { Companion.onLoad(e); }, false);
 Companion.onLoad = function() {
     this.strings = document.getElementById("companion-strings");
