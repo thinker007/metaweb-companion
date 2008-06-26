@@ -101,6 +101,12 @@ Companion.PageSession.ActiveAugmentingStage.prototype._removeAugmentingStyles = 
 Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = function() {
 	var doc = this._getDocument();
 	
+	var ignore = { 
+		"i":true, "you":true, "he":true, "she":true, "it":true, "we":true, "they":true, 
+		"me":true, "him":true, "her":true, "us":true, "them":true,
+		"his":true, "hers":true, "mine":true, "yours":true, "ours":true, "theirs":true
+	};
+	
 	var detectionEntries = this._pageSession.detectionEntries;
 	var detectionToIds = {};
 	var detections = [];
@@ -114,6 +120,9 @@ Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = functi
 			for (var j = 0; j < detections2.length; j++) {
 				var detection = detections2[j];
 				var text = detection.text;
+				if (text.toLowerCase() in ignore) {
+					continue;
+				}
 				if (!(text in detectionToIds)) {
 					detectionToIds[text] = {};
 					detections.push(text);
