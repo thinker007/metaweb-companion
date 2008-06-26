@@ -121,9 +121,13 @@
 	                <splitter class="companion-facetContainer-splitter" />
 	                
 	                <separator />
-	                <label value="&companion.pageSession.activeAugmentingStagePage.filterbyProperties.label;"
-	                   class="companion-facetContainer-sectionLabel" 
-	                   />
+	                <hbox>
+    	                <label value="&companion.pageSession.activeAugmentingStagePage.filterbyProperties.label;"
+    	                    class="companion-facetContainer-sectionLabel"
+    	                    flex="1" 
+    	                    />
+                        <html:div style="display: none;"><html:a href="javascript:{}">&companion.facetContainer.resetAllLink.label;</html:a></html:div>
+    	            </hbox>
 	                <scrollbox
 	                   class="companion-facetContainer" 
 	                   orient="vertical" 

@@ -22,6 +22,9 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     this._dom.analyzeButton = this._page.childNodes[0].childNodes[1];
     this._dom.analyzeButton.addEventListener('command', function(event) { self._pageSession.analyze(); }, true);
     
+    this._dom.resetAllLink = this._page.childNodes[5].childNodes[1];
+    this._dom.resetAllLink.addEventListener('click', function(event) { self._onClickResetAllLink(); }, true);
+    
     this._dom.typeFacetContainer = this._page.getElementsByTagName("vbox")[0];
     this._dom.facetContainer = this._page.getElementsByTagName("scrollbox")[0];
 	
@@ -145,6 +148,16 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 			this._facetProperties.push(propertyID);
 		}
 	}
+    
+    var hasRestrictions = false;
+    for (var i = 0; i < this._facets.length; i++) {
+        var facet = this._facets[i];
+        if (this._facets.hasRestrictions()) {
+            hasRestrictions = true;
+            break;
+        }
+    }
+    this._dom.resetAllLink.style.display = hasRestrictions ? "block" : "none";
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {
@@ -306,7 +319,10 @@ Companion.PageSession.ActiveAugmentingStage.prototype._highlightAugmentations = 
 		}
 	}
 	
-	this._showTargetCircles(doc, spansToHighlight);
+    var self = this;
+    window.setTimeout(function() {
+    	self._showTargetCircles(doc, spansToHighlight);
+    }, 1000);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._showTargetCircles = function(doc, elmts) {
@@ -403,6 +419,11 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onClickDetection = functi
             
         return Companion.cancelEvent(evt);
     }
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._onClickResetAllLink = function() {
+    var collection = this._pageSession.collection;
+    collection.clearAllRestrictions();
 };
 
 Companion.PageSession.ActiveAugmentingStage._overlayID = "metawebCompanion-lightboxOverlay";
