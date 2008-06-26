@@ -120,7 +120,6 @@
 	                <vbox class="companion-typeFacet" />
 	                <splitter class="companion-facetContainer-splitter" />
 	                
-	                <separator />
 	                <hbox>
     	                <label value="&companion.pageSession.activeAugmentingStagePage.filterbyProperties.label;"
     	                    class="companion-facetContainer-sectionLabel"
