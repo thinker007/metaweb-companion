@@ -15,6 +15,7 @@ Companion.Database.create = function() {
  */
 Companion.Database._Impl = function() {
     this._types = {};
+	this._typeArray = null;
     this._properties = {};
     this._propertyArray = {};
     
@@ -130,29 +131,39 @@ Companion.Database._Impl.prototype.loadFreebaseItems = function(relationEntries)
 			var sID = getID(reverse ? entry.target : entry.source);
 			var tID = getID(reverse ? entry.source : entry.target);
 			
+			var theTarget = ("length" in entry.target) ? entry.target[0] : entry.target;
+			if ("name" in theTarget) {
+				indexTriple(theTarget.id, "label", theTarget.name);
+			}
+			
 			if (!this._items.contains(sID)) {
 				missingLabels[sID] = true;
 				missingTypes[sID] = true;
 				this._items.add(sID);
 			}
-			if (!this._items.contains(tID)) {
+			/*if (!this._items.contains(tID)) {
 				missingLabels[tID] = true;
 				missingTypes[tID] = true;
 				this._items.add(tID);
-			}
+			}*/
 			        
 			if (pID == "/type/object/type") {
 				indexTriple(sID, "type", tID);
 				this._ensureTypeExists(tID, baseURI);
 			} else if (pID == "/type/object/name") {
+				indexTriple(sID, "label", tID);
+				delete missingLabels[sID];
 			} else {
+				this._ensurePropertyExists(pID, baseURI)._onNewData();
+				indexTriple(sID, pID, tID);
 			}
-			
-			this._ensurePropertyExists(pID, baseURI)._onNewData();
-			
-			indexTriple(sID, pID, tID);
         }
+		
+		for (var sID in missingLabels) {
+			indexTriple(sID, "label", sID);
+		}
         
+		this._typeArray = null;
         this._propertyArray = null;
         
         this._listeners.fire("onAfterLoadingItems", []);
@@ -329,6 +340,19 @@ Companion.Database._Impl.prototype.getAllProperties = function() {
     }
     
     return [].concat(this._propertyArray);
+};
+
+Companion.Database._Impl.prototype.getAllTypes = function() {
+    if (this._typeArray == null) {
+        this._typeArray = [];
+        for (var typeID in this._types) {
+			if (typeID != "Item") {
+				this._typeArray.push(typeID);
+			}
+        }
+    }
+    
+    return [].concat(this._typeArray);
 };
 
 Companion.Database._Impl.prototype.getAllItems = function() {

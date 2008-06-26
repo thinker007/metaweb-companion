@@ -135,9 +135,10 @@ Companion.ListFacet.prototype._computeFacet = function(items) {
     
     if (entries.length > 0) {
         var selection = this._valueSet;
-        var labeler = valueType == "item" ?
+        var labeler = function(v) { var l = database.getObject(v, "label"); return l != null ? l : v; };
+		/*valueType == "item" ?
             function(v) { var l = database.getObject(v, "label"); return l != null ? l : v; } :
-            function(v) { return v; }
+            function(v) { return v; }*/
             
         for (var i = 0; i < entries.length; i++) {
             var entry = entries[i];

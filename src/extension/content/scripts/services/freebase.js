@@ -173,3 +173,57 @@ FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDo
 		onDone(compoundResults);
 	}
 };
+
+FreebaseService.getTypeProperties = function(types, onDone) {
+    var query = [
+		{
+			"/type/type/properties" : [],
+			"id" : null,
+			"id|=" : types
+		}
+	];
+	var queries = {
+	   "q1": { "query": query }
+	};
+
+    var url = 'http://freebase.com/api/service/mqlread?';
+	var json = jsonize(queries);
+    var body = 'queries=' + encodeURIComponent(json);
+    
+    var request = new XMLHttpRequest();
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("Content-Length", body.length);
+    request.onreadystatechange = function() { 
+		FreebaseService._getTypePropertiesStateChangeCallback(request, onDone);
+    };
+    request.send(body);
+};
+
+FreebaseService._getTypePropertiesStateChangeCallback = function(request, onDone) {
+    if (request.readyState != 4) {
+        //Companion.log("working...");
+        return;
+    }
+    
+    if (request.status != 200) {
+        Companion.log(
+            "GetTypeProperties error: " +
+            "state = " + request.readyState + 
+            " status = " + request.status +
+            " text = " + request.responseText
+        );
+        
+        onDone({});
+    } else {
+		var typeProperties = {};
+		
+		var o = eval("(" + request.responseText + ")");
+		var results = o.q1.result;
+		for (var i = 0; i < results.length; i++) {
+			var result = results[i];
+			typeProperties[result.id] = result["/type/type/properties"];
+		}
+		onDone(typeProperties);
+	}
+};
