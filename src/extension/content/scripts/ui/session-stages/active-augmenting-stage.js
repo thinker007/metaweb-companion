@@ -204,10 +204,11 @@ Companion.PageSession.ActiveAugmentingStage.prototype._removeAugmentations = fun
 	var doc = this._getDocument();
 };
 
-Companion.PageSession.ActiveAugmentingStage.prototype._highlightAugmentations = function() {Companion.log("here");
-	var items = this._pageSession.collection.getRestrictedItems();Companion.log("here " + items.size());
+Companion.PageSession.ActiveAugmentingStage.prototype._highlightAugmentations = function() {
+	var items = this._pageSession.collection.getRestrictedItems();
 	var doc = this._getDocument();
 	var spans = doc.getElementsByTagName("span");
+	var spansToHighlight = [];
 	
 	for (var i = 0; i < spans.length; i++) {
 		var span = spans[i];
@@ -226,11 +227,69 @@ Companion.PageSession.ActiveAugmentingStage.prototype._highlightAugmentations = 
 			
 			if (found) {
 				span.className = Companion.augmentingStyles.detectionClass + " " + Companion.augmentingStyles.highlightClass;
+				spansToHighlight.push(span);
 			} else {
 				span.className = Companion.augmentingStyles.detectionClass;
 			}
 		}
 	}
+	
+	this._showTargetCircles(doc, spansToHighlight);
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._showTargetCircles = function(doc, elmts) {
+	var containerID = "metawebCompanion-targetCircleContainer";
+	var containerDiv = doc.getElementById(containerID);
+	if (!(containerDiv)) {
+		containerDiv = doc.createElement("div");
+		containerDiv.id = containerID;
+		containerDiv.style.position = "absolute";
+		containerDiv.style.top = "0px";
+		containerDiv.style.left = "0px";
+		containerDiv.style.width = doc.body.scrollWidth + "px";
+		containerDiv.style.height = doc.body.scrollHeight + "px";
+		containerDiv.style.zIndex = 1000;
+		doc.body.appendChild(containerDiv);
+	}
+	containerDiv.innerHTML = '<div style="position: relative; width: 100%; height: 100%; overflow: hidden"></div>';
+	
+	var minTop = doc.body.scrollHeight;
+	var maxTop = 0;
+	
+	var scrollTop = doc.body.scrollTop;
+	var scrollLeft = doc.body.scrollLeft;
+	for (var i = 0; i < elmts.length; i++) {
+		try {
+			var elmt = elmts[i];
+			var rect = elmt.getClientRects().item(0);
+			var top = scrollTop + Math.ceil((rect.top + rect.bottom) / 2 - 50);
+			var left = scrollLeft + Math.ceil((rect.left + rect.right) / 2 - 50);
+			
+			minTop = Math.min(minTop, top);
+			maxTop = Math.max(maxTop, top);
+			
+			var img = doc.createElement("img");
+			img.src = "http://metaweb-companion.googlecode.com/svn/trunk/src/extension/skin/images/target-circle.png";
+			//img.src = "chrome://companion/skin/images/target-circle.png";
+			img.style.position = "absolute";
+			img.style.top = top + "px";
+			img.style.left = left + "px";
+			
+			containerDiv.firstChild.appendChild(img);
+		} catch (e) {}
+	}
+	
+	if (minTop >= scrollTop + doc.body.clientHeight) { // need to scroll down
+		doc.body.scrollTop = Math.min(doc.body.scrollHeight - doc.body.clientHeight, minTop - 100);
+	} else if (maxTop < scrollTop) { // need to scroll up
+		doc.body.scrollTop = Math.max(0, maxTop - (doc.body.clientHeight - 100));
+	}
+	
+	containerDiv.style.display = "block";
+	
+	window.setTimeout(function() {
+		containerDiv.style.display = "none";
+	}, 1200);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._createFacet = 
