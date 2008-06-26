@@ -1,24 +1,34 @@
 Companion.PageSession = function(windowSession, box) {
     this.windowSession = windowSession;
     this.database = Companion.Database.create();
+	this.collection = null;
+	this.detectionEntries = null;
     
     this._containerBox = box;
     
     this._pageHasFocus = false;
     this._stageCode = Companion.PageSession.STAGE_START;
     this._stage = null;
-    
-    this._isQuery = false;
-    this._query = null;
-    this._uris = null;
-    
-    this._typeSelection = [];
-    this._facets = [];
 };
 
 Companion.PageSession.STAGE_START = 0;
 Companion.PageSession.STAGE_ACTIVATING = 1;
 Companion.PageSession.STAGE_ACTIVE_AUGMENTING = 2;
+
+Companion.PageSession.prototype.dispose = function() {
+    this.database.removeAllStatements();
+	this.database = null;
+	
+	if (this.collection != null) {
+		this.collection.dispose();
+		this.collection = null;
+	}
+	
+	this.detectionEntries = null;
+	
+	this.windowSession = null;
+	this._containerBox = null;
+};
     
 Companion.PageSession.prototype.installUserInterface = function() {
     this._pageHasFocus = true;
