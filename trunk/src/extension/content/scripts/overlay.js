@@ -1,6 +1,13 @@
 var Companion = {
-	sidepaneHidden: true
+	sidepaneHidden: true,
+	augmentingStyles: {
+		styleID: 		"metawebCompanion-style",
+		detectionClass: "metawebCompanion-detection",
+		highlightClass: "metawebCompanion-highlight"
+	}
 };
+
+
 
 Companion.log = function(msg) {
     this._consoleService.logStringMessage(msg);
@@ -72,4 +79,31 @@ Companion.toggleSidepane = function() {
 	document.getElementById("companion-sidePane").hidden = Companion.sidepaneHidden;
 	document.getElementById("companion-toggleSidepane-cmd").
 		setAttribute("checked", !Companion.sidepaneHidden);
+};
+
+Companion.addAugmentingStyles = function(doc) {
+    var style = doc.getElementById(Companion.augmentingStyles.styleID);
+    if (!style) {
+        var head = doc.getElementsByTagName("head").item(0);
+        if (head) {
+            style = doc.createElement("style");
+        } else {
+            head = doc.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "head").item(0);
+            style = doc.createElementNS("http://www.w3.org/1999/xhtml", "style");
+        }
+        
+        style.id = Companion.augmentingStyles.styleID;
+        style.innerHTML = 
+          "." + Companion.augmentingStyles.detectionClass + " {}\n" +
+          "." + Companion.augmentingStyles.highlightClass + " { background-color: #ffff80; }";
+        
+        head.appendChild(style);
+    }
+};
+
+Companion.removeAugmentingStyles = function(doc) {
+    var style = doc.getElementById(Companion.augmentingStyles.styleID);
+    if (style) {
+		style.parentNode.removeChild(style);
+    }
 };

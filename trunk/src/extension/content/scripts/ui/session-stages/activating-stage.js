@@ -67,7 +67,7 @@ Companion.PageSession.ActivatingStage.prototype._getOpenCalaisAnnotation = funct
     };
     processNode(this._pageSession.windowSession.browser.contentDocument.body);
     
-    var text = textFragments.join("\n");
+    var text = textFragments.join(" | ");
     OpenCalaisService.analyzeText(text, function(xmlDoc) {
         self._onOpenCalaisTextAnalysisResult(xmlDoc);
     });
@@ -151,6 +151,8 @@ Companion.PageSession.ActivatingStage.prototype._onDoneReconciliation = function
             Companion.log(entry.name + " = unknown");
         }
     }
+	
+	this._pageSession.detectionEntries = entries;
     
     if (this._dom != null) {
         this._dom.logListbox.appendItem("Retrieving relationships from Freebase...", "");
