@@ -95,7 +95,7 @@ Companion.addAugmentingStyles = function(doc) {
         style.id = Companion.augmentingStyles.styleID;
         style.innerHTML = 
           "." + Companion.augmentingStyles.detectionClass + " {}\n" +
-          "." + Companion.augmentingStyles.highlightClass + " { background-color: #ffff80; }";
+          "." + Companion.augmentingStyles.highlightClass + " { background-color: #ffff80; cursor: pointer; }";
         
         head.appendChild(style);
     }

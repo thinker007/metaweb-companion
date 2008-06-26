@@ -65,14 +65,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 	this._addAugmentations();
 	this._highlightAugmentations();
 	
-    /*
-    var propertyListbox = this._dom.propertyListbox;
-    var properties = database.getAllProperties();
-    for (var i = 0; i < properties.length; i++) {
-        var pID = properties[i];
-        propertyListbox.appendItem(pID, pID);
-    }
-    */
     var facetLabel = document.getElementById("companion-strings").
         getString("companion.pageSession.activeAugmentingStagePage.filterByTypes.label");
         
@@ -167,6 +159,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._removeAugmentingStyles = 
 
 Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = function() {
 	var doc = this._getDocument();
+    var self = this;
 	
 	var ignore = { 
 		"i":true, "you":true, "he":true, "she":true, "it":true, "we":true, "they":true, 
@@ -245,6 +238,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = functi
 					ids.push(id);
 				}
 				span.setAttribute("itemIDs", ids.join(";"));
+                span.addEventListener('click', function(evt) { self._onClickDetection(evt, this); }, true);
 				
 				if (before.length > 0) {
 					var beforeTextNode = doc.createTextNode(before);
@@ -398,4 +392,14 @@ Companion.PageSession.ActiveAugmentingStage.prototype._appendFacet =
 		this._dom.facetContainer.lastChild);
     
 	return this._createFacet(database, collection, name, config, vbox);
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._onClickDetection = function(evt, elmt) {
+    if (elmt.className.indexOf(Companion.augmentingStyles.highlightClass) >= 0) {
+        var itemIDs = elmt.getAttribute("itemIDs");
+        this._pageSession.windowSession.browser.contentWindow.open(
+            "http://freebase.com/view" + itemIDs, "_blank");
+            
+        return Companion.cancelEvent(evt);
+    }
 };
