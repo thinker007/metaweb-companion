@@ -119,7 +119,17 @@
 					
 	                <vbox class="companion-typeFacet" />
 	                <splitter class="companion-facetContainer-splitter" />
-	                <scrollbox orient="vertical" flex="1" style="overflow: auto;" />
+	                
+	                <separator />
+	                <label value="&companion.pageSession.activeAugmentingStagePage.filterbyProperties.label;"
+	                   class="companion-facetContainer-sectionLabel" 
+	                   />
+	                <scrollbox
+	                   class="companion-facetContainer" 
+	                   orient="vertical" 
+	                   flex="1" 
+	                   style="overflow: auto;" 
+	                   />
 				</vbox>
 				
 	            <!-- active-meta stage -->
@@ -138,7 +148,7 @@
 	                <hbox class="companion-facet-header" id="companion-facet-header"
 						xmlns:html="http://www.w3.org/1999/xhtml">
 	                    <box flex="1">
-							<html:div><html:span></html:span> <html:a></html:a></html:div>
+							<html:div><html:span class="companion-facet-header-label"></html:span> <html:a></html:a></html:div>
 						</box>
 						<html:div style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:div>
 	                </hbox>

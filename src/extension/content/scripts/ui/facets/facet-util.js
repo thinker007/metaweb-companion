@@ -19,7 +19,7 @@ Companion.FacetUtilities.constructFacetFrame = function(parentVbox, facetLabel, 
 	header = header.cloneNode(true);
     header.id = "";
     parentVbox.appendChild(header);
-    header.childNodes[0].childNodes[0].innerHTML = facetLabel;
+    header.childNodes[0].childNodes[0].childNodes[0].innerHTML = facetLabel;
     
     if (hasFilter) {
         var textbox = document.getElementById("companion-facet-quickFilter").cloneNode(true);
@@ -34,7 +34,7 @@ Companion.FacetUtilities.constructFacetFrame = function(parentVbox, facetLabel, 
     var r = {
         header: 		header,
         //closeButton: 	header.childNodes[0],
-        headerLabel: 	header.childNodes[0].childNodes[0],
+        headerLabel: 	header.childNodes[0].childNodes[0].childNodes[0],
         reset: 			header.childNodes[1],
         valuesContainer: valuesContainer,
         setSelectionCount: function(count) {

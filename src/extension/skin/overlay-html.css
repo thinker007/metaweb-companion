@@ -21,3 +21,7 @@ div.companion-facet-quickFilter input {
 div.companion-facet-quickFilter input.companion-hintedTextbox-empty {
     color:  #aaa;
 }
+
+span.companion-facet-header-label {
+    font-weight: bold;
+}
