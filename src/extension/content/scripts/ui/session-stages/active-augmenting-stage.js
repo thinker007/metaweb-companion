@@ -6,6 +6,7 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession, box) {
     this._dom = null;
 	this._facetProperties = [];
 	this._facets = [];
+    this._typeFacet = null;
 	
 	var self = this;
 	this._collectionListener = {
@@ -22,7 +23,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     this._dom.analyzeButton = this._page.childNodes[0].childNodes[1];
     this._dom.analyzeButton.addEventListener('command', function(event) { self._pageSession.analyze(); }, true);
     
-    this._dom.resetAllLink = this._page.childNodes[5].childNodes[1];
+    this._dom.resetAllLink = this._page.childNodes[4].childNodes[1];
     this._dom.resetAllLink.addEventListener('click', function(event) { self._onClickResetAllLink(); }, true);
     
     this._dom.typeFacetContainer = this._page.getElementsByTagName("vbox")[0];
@@ -83,7 +84,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 		showMissing:    false,
 		fixedOrder: 	[]
 	};
-	this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
+	this._typeFacet = this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {
@@ -94,21 +95,32 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 	var collection = this._pageSession.collection;
 	var typeProperties = this._pageSession.typeProperties;
 	
-	var items = collection.getRestrictedItems();
-	var types = database.getObjectsUnion(items, "type");
-	var newProperties = {};
-	types.visit(function(typeID) {
-		var properties = typeProperties[typeID];
-		if (properties) {
-			for (var i = 0; i < properties.length; i++) {
-				var propertyID = properties[i];
-				if (properties[i].indexOf("/common/") != 0) {
-					newProperties[properties[i]] = true;
-				}
-			}
-		}
-	});
-	
+    var hasRestrictions = this._typeFacet.hasRestrictions();
+    for (var i = 0; !hasRestrictions && i < this._facets.length; i++) {
+        var facet = this._facets[i];
+        if (facet.hasRestrictions()) {
+            hasRestrictions = true;
+        }
+    }
+    this._dom.resetAllLink.style.display = hasRestrictions ? "block" : "none";
+    
+    var newProperties = {};
+    if (hasRestrictions) {
+    	var items = collection.getRestrictedItems();
+    	var types = database.getObjectsUnion(items, "type");
+    	types.visit(function(typeID) {
+    		var properties = typeProperties[typeID];
+    		if (properties) {
+    			for (var i = 0; i < properties.length; i++) {
+    				var propertyID = properties[i];
+    				if (properties[i].indexOf("/common/") != 0) {
+    					newProperties[properties[i]] = true;
+    				}
+    			}
+    		}
+    	});
+	}
+    
 	var facetContainer = this._dom.facetContainer;
 	for (var i = this._facetProperties.length - 1; i >= 0; i--) {
 		var facetProperty = this._facetProperties[i];
@@ -148,16 +160,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 			this._facetProperties.push(propertyID);
 		}
 	}
-    
-    var hasRestrictions = false;
-    for (var i = 0; i < this._facets.length; i++) {
-        var facet = this._facets[i];
-        if (this._facets.hasRestrictions()) {
-            hasRestrictions = true;
-            break;
-        }
-    }
-    this._dom.resetAllLink.style.display = hasRestrictions ? "block" : "none";
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {
