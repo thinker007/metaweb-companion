@@ -1,2 +1,4 @@
 <!ENTITY companion.menuItem.toggleSidepane.label "Metaweb Companion">
 <!ENTITY companion.facet.resetLink.label "reset">
+
+<!ENTITY companion.pageSession.activeAugmentingStagePage.filterbyProperties.label "Filter by Properties">

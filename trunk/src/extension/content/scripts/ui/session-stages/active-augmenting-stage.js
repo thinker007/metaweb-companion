@@ -73,8 +73,11 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
         propertyListbox.appendItem(pID, pID);
     }
     */
+    var facetLabel = document.getElementById("companion-strings").
+        getString("companion.pageSession.activeAugmentingStagePage.filterByTypes.label");
+        
 	var config = {
-		facetLabel:     "Types",
+		facetLabel:     facetLabel,
 		expression:     ".type",
 		filterable:     true,
 		selectMultiple: true,
@@ -386,6 +389,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._appendFacet =
 		
     var vbox = document.createElement("vbox");
     vbox.style.height = "17em";
+    vbox.className = "companion-facet-box";
 	
     this._dom.facetContainer.insertBefore(vbox, this._dom.facetContainer.lastChild);
     

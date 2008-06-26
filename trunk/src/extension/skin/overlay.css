@@ -19,12 +19,27 @@ listbox.companion-pageSession-activatingStagePage-logList {
 	height: 17em;
 }
 
+.companion-facet-box {
+    height: 17em;
+    margin-top: 1em;
+}
+
 splitter.companion-facetContainer-splitter {
     border-top: none;
     border-bottom: none;
 }
 
 .companion-facet-header label {
+}
+
+.companion-facetContainer-sectionLabel {
+	font-size: 120%;
+	font-weight: bold;
+}
+
+.companion-facetContainer {
+	padding: 5px;
+	-moz-appearance: listbox;
 }
 
 tree.companion-facet-valuesContainer {
