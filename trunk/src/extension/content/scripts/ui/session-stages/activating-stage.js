@@ -170,6 +170,17 @@ Companion.PageSession.ActivatingStage.prototype._onDoneReconciliation = function
 Companion.PageSession.ActivatingStage.prototype._onDoneGetAllRelationships = function(ids, results) {
     var database = this._pageSession.database;
     database.loadFreebaseItems(results);
-    
-    this._pageSession.augment(ids);
+	
+    if (this._dom != null) {
+        this._dom.logListbox.appendItem("Retrieving schemas from Freebase...", "");
+    }
+	
+	var self = this;
+	FreebaseService.getTypeProperties(
+		database.getAllTypes(),
+		function(typeProperties) { self._onDoneGetTypeProperties(typeProperties, ids); });
+};
+
+Companion.PageSession.ActivatingStage.prototype._onDoneGetTypeProperties = function(typeProperties, ids) {
+    this._pageSession.augment(typeProperties, ids);
 };

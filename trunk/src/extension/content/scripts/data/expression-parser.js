@@ -262,14 +262,14 @@ Companion.ExpressionScanner.prototype.next = function() {
                 };
                 this._index++;
             }
-        } else if ("+-*/=".indexOf(c1) >= 0) {
+        /*} else if ("+-/*=".indexOf(c1) >= 0) {
             this._token = {
                 type:   Companion.ExpressionScanner.OPERATOR,
                 value:  c1,
                 start:  this._index,
                 end:    this._index + 1
             };
-            this._index++;
+            this._index++;*/
         } else if ("(),".indexOf(c1) >= 0) {
             this._token = {
                 type:   Companion.ExpressionScanner.DELIMITER,

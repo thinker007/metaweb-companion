@@ -85,7 +85,8 @@ Companion.PageSession.prototype.analyze = function() {
     this._stage.kickstart();
 };
 
-Companion.PageSession.prototype.augment = function(ids) {
+Companion.PageSession.prototype.augment = function(typeProperties, ids) {
     this.collection = Companion.Collection.createGivenCollection("default", this.database, ids);
+	this.typeProperties = typeProperties;
     this._switchStage(Companion.PageSession.STAGE_ACTIVE_AUGMENTING); 
 };

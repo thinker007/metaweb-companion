@@ -4,10 +4,12 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession, box) {
     
     this._page = null;
     this._dom = null;
+	this._facetProperties = [];
+	this._facets = [];
 	
 	var self = this;
 	this._collectionListener = {
-        onItemsChanged: function() { self._highlightAugmentations(); }
+        onItemsChanged: function() { self._onItemsChanged(); }
     };
 };
 
@@ -84,6 +86,66 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 		fixedOrder: 	[]
 	};
 	this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {
+	this._highlightAugmentations();
+	
+    var database = this._pageSession.database;
+	var collection = this._pageSession.collection;
+	var typeProperties = this._pageSession.typeProperties;
+	
+	var items = collection.getRestrictedItems();
+	var types = database.getObjectsUnion(items, "type");
+	var newProperties = {};
+	types.visit(function(typeID) {
+		var properties = typeProperties[typeID];
+		if (properties) {
+			for (var i = 0; i < properties.length; i++) {
+				var propertyID = properties[i];
+				if (properties[i].indexOf("/common/") != 0) {
+					newProperties[properties[i]] = true;
+				}
+			}
+		}
+	});
+	
+	var facetContainer = this._dom.facetContainer;
+	for (var i = this._facetProperties.length - 1; i >= 0; i--) {
+		var facetProperty = this._facetProperties[i];
+		if (facetProperty in newProperties) {
+			delete newProperties[facetProperty];
+		} else {
+			if (!this._facets[i].hasRestrictions()) {
+				this._facets[i].dispose();
+				this._facets.splice(i, 1);
+				this._facetProperties.splice(i, 1);
+				
+				facetContainer.removeChild(facetContainer.childNodes[i*2]); // the facet box
+				facetContainer.removeChild(facetContainer.childNodes[i*2]); // splitter
+			}
+		}
+	}
+	
+	for (var propertyID in newProperties) {
+		if (database.countDistinctObjectsUnion(items, propertyID) > 1) {
+			var config = {
+				facetLabel:     propertyID,
+				expression:     "." + propertyID,
+				filterable:     true,
+				selectMultiple: true,
+				sortable:       true,
+				sortMode:       "value",
+				sortDirection:  "forward",
+				showMissing:    true,
+				missingLabel:   "(missing value)",
+				fixedOrder: 	[]
+			};
+			var facet = this._appendFacet(database, collection, propertyID + "-facet", config);
+			this._facets.push(facet);
+			this._facetProperties.push(propertyID);
+		}
+	}
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {
@@ -310,7 +372,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._createFacet =
         collection, 
         box, 
         config
-    );    
+    );
     //Seek._facets.push(facet);
     //Seek._saveSettings();
     
@@ -326,7 +388,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._appendFacet =
     this._dom.facetContainer.insertBefore(vbox, this._dom.facetContainer.lastChild);
     
     this._dom.facetContainer.insertBefore(
-		Seek.FacetUtilities.createFacetSplitter(), 
+		Companion.FacetUtilities.createFacetSplitter(), 
 		this._dom.facetContainer.lastChild);
     
 	return this._createFacet(database, collection, name, config, vbox);
