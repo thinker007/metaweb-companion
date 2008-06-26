@@ -178,9 +178,29 @@ Companion.PageSession.ActivatingStage.prototype._onDoneGetAllRelationships = fun
 	var self = this;
 	FreebaseService.getTypeProperties(
 		database.getAllTypes(),
-		function(typeProperties) { self._onDoneGetTypeProperties(typeProperties, ids); });
+		function(o) { self._onDoneGetTypeProperties(o, ids); });
 };
 
-Companion.PageSession.ActivatingStage.prototype._onDoneGetTypeProperties = function(typeProperties, ids) {
+Companion.PageSession.ActivatingStage.prototype._onDoneGetTypeProperties = function(typePropertyEntries, ids) {
+    var database = this._pageSession.database;
+    
+    var typeProperties = {};
+    for (var i = 0; i < typePropertyEntries.length; i++) {
+        var typePropertyEntry = typePropertyEntries[i];
+        var propertyEntries = typePropertyEntry["/type/type/properties"];
+        var propertyIDs = [];
+        
+        for (var j = 0; j < propertyEntries.length; j++) {
+            var propertyEntry = propertyEntries[j];
+            propertyIDs.push(propertyEntry.id);
+            
+            var propertyRecord = database.getProperty(propertyEntry.id);
+            if (propertyRecord != null) {
+                propertyRecord._label = propertyRecord._pluralLabel = propertyEntry.name;
+            }
+        }
+        typeProperties[typePropertyEntry.id] = propertyIDs;
+    }
+
     this._pageSession.augment(typeProperties, ids);
 };
