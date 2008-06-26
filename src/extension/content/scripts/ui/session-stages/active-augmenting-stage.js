@@ -79,10 +79,9 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 		filterable:     true,
 		selectMultiple: true,
 		sortable:       true,
-		sortMode:       "value",
+		sortMode:       "count",
 		sortDirection:  "forward",
 		showMissing:    false,
-		missingLabel:   "(No recipient)",
 		fixedOrder: 	[]
 	};
 	this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
@@ -129,8 +128,11 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 	
 	for (var propertyID in newProperties) {
 		if (database.countDistinctObjectsUnion(items, propertyID) > 1) {
+            var propertyRecord = database.getProperty(propertyID);
+            var label = (propertyRecord != null) ? propertyRecord.getLabel() : propertyID;
+            
 			var config = {
-				facetLabel:     propertyID,
+				facetLabel:     label,
 				expression:     "." + propertyID,
 				filterable:     true,
 				selectMultiple: true,

@@ -177,7 +177,10 @@ FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDo
 FreebaseService.getTypeProperties = function(types, onDone) {
     var query = [
 		{
-			"/type/type/properties" : [],
+			"/type/type/properties" : [{
+                "id" : null,
+                "name" : null
+            }],
 			"id" : null,
 			"id|=" : types
 		}
@@ -219,11 +222,6 @@ FreebaseService._getTypePropertiesStateChangeCallback = function(request, onDone
 		var typeProperties = {};
 		
 		var o = eval("(" + request.responseText + ")");
-		var results = o.q1.result;
-		for (var i = 0; i < results.length; i++) {
-			var result = results[i];
-			typeProperties[result.id] = result["/type/type/properties"];
-		}
-		onDone(typeProperties);
+		onDone(o.q1.result);
 	}
 };
