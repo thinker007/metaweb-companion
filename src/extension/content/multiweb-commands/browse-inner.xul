@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="styles/browse.css" type="text/css"?>
+<!-- <!DOCTYPE overlay SYSTEM "chrome://companion/locale/companion.dtd"> -->
+
+<page
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	title="Multiweb Browsing"
+	onload="onLoad();">
+	
+	<script src="scripts/browse.js" />
+	
+	<vbox flex="1">
+		<deck id="content-stack" flex="1">
+			<scrollbox 
+				id="multiview-scrollbox"
+				orient="horizontal"
+				style="overflow: auto">
+			</scrollbox>
+		</deck>
+		<hbox id="control-container">
+			<spacer flex="5" />
+			<button label="Previous" />
+			<button label="Next" />
+			<spacer flex="1" />
+			<button label="Zoom Out" />
+			<spacer flex="5" />
+		</hbox>
+	</vbox>
+</page>

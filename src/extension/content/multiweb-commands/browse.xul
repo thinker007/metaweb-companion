@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	title="Multiweb Browsing">
+	
+	<browser id="the-browser" flex="1" />
+	<script>
+		/*  We need to embedd chrome://.../browser-inner.xul because chrome: is the
+			only protocol handler that has enough permissions to peek into inner iframes
+			and retrieve their information, which includes document.body's dimensions that
+			we need to paint the thumbnails.
+		*/
+		var href = document.location.href;
+		var q = href.indexOf("?");
+		var url = "chrome://companion/content/multiweb-commands/browse-inner.xul" + href.substr(q);
+		document.getElementById("the-browser").setAttribute("src", url);
+	</script>
+</page>
