@@ -15,7 +15,7 @@
 			<scrollbox 
 				id="multiview-scrollbox"
 				orient="horizontal"
-				style="overflow: auto">
+				style="overflow: auto; padding: 10px;">
 			</scrollbox>
 		</deck>
 		<hbox id="control-container">

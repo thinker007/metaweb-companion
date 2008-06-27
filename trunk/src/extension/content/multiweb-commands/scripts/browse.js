@@ -1,4 +1,5 @@
 var thumbnailRecords = [];
+var toDrawNext = 0;
 
 function onLoad() {
 	try {
@@ -21,7 +22,9 @@ function onLoad() {
 		alert(e);
 	}
 	
-	window.setInterval(redrawThumbnails, 1000);
+	if (thumbnailRecords.length > 0) {
+		window.setTimeout(drawAllThumbnails, 1000);
+	}
 }
 
 function addPage(url) {
@@ -31,23 +34,30 @@ function addPage(url) {
 	var browser = document.createElement("browser");
 	contentStack.appendChild(browser);
 	browser.setAttribute("src", url);
+	// TODO: We still don't know how to prevent frame-busting.
 	
 	var box = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
 	box.style.width = "400px";
-	box.style.margin = "20px";
-	box.innerHTML = '<div style="padding: 10px; background: white"><canvas style="width: 100%"></canvas><div> </div></div>';
+	box.style.margin = "10px";
+	box.innerHTML = 
+		'<div style="height: 2em; margin-bottom: 5px; overflow: hidden; color: white;"> </div>' +
+		'<div style="padding: 5px; background: white">' +
+			'<canvas style="width: 100%"></canvas>' +
+		'</div>';
 	multiviewScrollbox.appendChild(box);
 	
 	thumbnailRecords.push({
 		url: 		url,
 		browser: 	browser,
-		canvas:		box.firstChild.firstChild
+		canvas:		box.childNodes[1].childNodes[0]
 	});
 	
-	box.firstChild.childNodes[1].firstChild.nodeValue = url;
+	var urlBox = box.childNodes[0];
+	urlBox.firstChild.nodeValue = url;
+	urlBox.title = url;
 }
 
-function redrawThumbnails() {
+function drawAllThumbnails() {
 	try {
 		for (var i = 0; i < thumbnailRecords.length; i++) {
 			redrawThumbnail(thumbnailRecords[i]);
@@ -55,17 +65,24 @@ function redrawThumbnails() {
 	} catch (e) {
 		alert(e);
 	}
+	
+	window.setInterval(redrawNextThumbnail, 500);
+}
+
+function redrawNextThumbnail() {
+	redrawThumbnail(thumbnailRecords[toDrawNext]);
+	toDrawNext = (toDrawNext + 1) % thumbnailRecords.length;
 }
 
 function redrawThumbnail(record) {
 	try {
 		var doc = record.browser.contentDocument;
 		var docWidth = doc.body.offsetWidth;
-		var docHeight = Math.max(doc.body.offsetHeight, doc.body.scrollHeight);
+		var docHeight = Math.max(doc.body.offsetHeight, record.browser.contentWindow.innerHeight);
 		
 		var canvas = record.canvas;
 		var canvasWidth = canvas.offsetWidth;
-		var canvasHeight = Math.ceil(docHeight * canvasWidth / docWidth);
+		var canvasHeight = Math.floor(docHeight * canvasWidth / docWidth);
 		
 		canvas.style.height = canvasHeight + "px";
 		canvas.setAttribute("width", docWidth);
