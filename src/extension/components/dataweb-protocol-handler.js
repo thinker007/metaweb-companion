@@ -5,19 +5,19 @@ function log(msg) {
 	consoleService.logStringMessage(msg);
 };
 
-const MetawebScheme = "metaweb";
-const MetawebProtocolName = "metaweb: URI scheme";
-const MetawebProtocolContractID = "@mozilla.org/network/protocol;1?name=" + MetawebScheme;
-const MetawebProtocolCID = Components.ID("{3a92fc7e-ad74-4aff-a6ef-2c3316075bbc}");
+const DatawebScheme = "dataweb";
+const DatawebProtocolName = "dataweb: URI scheme";
+const DatawebProtocolContractID = "@mozilla.org/network/protocol;1?name=" + DatawebScheme;
+const DatawebProtocolCID = Components.ID("{3a92fc7e-ad74-4aff-a6ef-2c3316075bbc}");
 
 
-var MetawebProtocolHandlerModule = {
+var DatawebProtocolHandlerModule = {
 	registerSelf: function (compMgr, fileSpec, location, type) {
 		var compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 		compMgr.registerFactoryLocation(
-			MetawebProtocolCID,
-			MetawebProtocolName,
-			MetawebProtocolContractID,
+			DatawebProtocolCID,
+			DatawebProtocolName,
+			DatawebProtocolContractID,
 			fileSpec, 
 			location, 
 			type);
@@ -25,12 +25,12 @@ var MetawebProtocolHandlerModule = {
 		this._initialize();
 	},
 	getClassObject: function (compMgr, cid, iid) {
-		if (!cid.equals(MetawebProtocolCID)) {
+		if (!cid.equals(DatawebProtocolCID)) {
 			throw Components.resuls.NS_ERROR_NO_INTERFACE;
 		} else if (!iid.equals(Components.interfaces.nsIFactory)) {
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 		} else {
-			return MetawebProtocolFactory;
+			return DatawebProtocolFactory;
 		}
 	},
 	canUnload: function (compMgr) {
@@ -58,10 +58,10 @@ var MetawebProtocolHandlerModule = {
 	}
 };
 function NSGetModule() {
-	return MetawebProtocolHandlerModule;
+	return DatawebProtocolHandlerModule;
 }
 
-var MetawebProtocolFactory = {
+var DatawebProtocolFactory = {
 	createInstance: function (outer, iid) {
 		if (outer != null) {
 			throw Components.results.NS_ERROR_NO_AGGREGATION;
@@ -69,15 +69,15 @@ var MetawebProtocolFactory = {
 				   !iid.equals(Components.interfaces.nsISupports)) {
 			throw Components.results.NS_ERROR_NO_INTERFACE;
 		} else {
-			return new MetawebProtocol();
+			return new DatawebProtocol();
 		}
 	}
 };
 
-function MetawebProtocol() {
+function DatawebProtocol() {
 }
 
-MetawebProtocol.prototype = {
+DatawebProtocol.prototype = {
 	QueryInterface: function(iid) {
 		if (!iid.equals(Components.interfaces.nsIProtocolHandler) &&
 			!iid.equals(Components.interfaces.nsISupports)) {
@@ -86,7 +86,7 @@ MetawebProtocol.prototype = {
 		return this;
 	},
       
-	scheme: 		MetawebScheme,
+	scheme: 		DatawebScheme,
 	defaultPort: 	-1,
 	
 	protocolFlags: 
@@ -103,27 +103,27 @@ MetawebProtocol.prototype = {
 		return uri;
 	},
 
-	newChannel: function(metawebUri) {
+	newChannel: function(datawebUri) {
 		var ioService = Components.classesByID["{9ac9e770-18bc-11d3-9337-00104ba0fd40}"].
 			getService().
 			QueryInterface(Components.interfaces.nsIIOService);
 		
-		var metawebUriSpec = metawebUri.spec;
-		metawebUriSpec = metawebUriSpec.substr((MetawebScheme + ":").length);
+		var datawebUriSpec = datawebUri.spec;
+		datawebUriSpec = datawebUriSpec.substr((DatawebScheme + ":").length);
 		
 		var fileURL;
-		if (metawebUriSpec.substr(0,10) == "resources/") {
-			fileURL = chromeContentPath + "metaweb-commands/" + metawebUriSpec.substr(10);
+		if (datawebUriSpec.substr(0,10) == "resources/") {
+			fileURL = chromeContentPath + "dataweb-commands/" + datawebUriSpec.substr(10);
 		} else {
-			var question = metawebUriSpec.indexOf("?");
+			var question = datawebUriSpec.indexOf("?");
 			if (question < 1) {
 				return ioService.newChannelFromURI(ioService.newURI("about:blank", null, null));
 			}
 			
 			//return ioService.newChannelFromURI(ioService.newURI("http://google.com/", null, null));
 			
-			var command = metawebUriSpec.substr(0, question);
-			fileURL = chromeContentPath + "metaweb-commands/" + command + ".xul";
+			var command = datawebUriSpec.substr(0, question);
+			fileURL = chromeContentPath + "dataweb-commands/" + command + ".xul";
 		}
 		
 		var fileUri = ioService.newURI(fileURL, null, null);

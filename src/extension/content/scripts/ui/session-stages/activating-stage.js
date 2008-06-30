@@ -77,40 +77,43 @@ Companion.PageSession.ActivatingStage.prototype._onOpenCalaisTextAnalysisResult 
     var self = this;
     //Companion.inspect(xmlDoc);
     
+	var list = [];
+	var map = {};
+	
     var root = xmlDoc.firstChild.nextSibling;
-    var entities = root.getElementsByTagName("Entities")[0].childNodes;
-    var list = [];
-    var map = {};
-    for (var i = 0 ; i < entities.length ; i++) {
-        var entityNode = entities[i];
-        var entityType = entityNode.nodeName;
-        
-        var detectionNode = entityNode.getElementsByTagName("Detection")[0];
-        var detection = {
-            text:   detectionNode.firstChild.nodeValue,
-            offset: parseInt(detectionNode.getAttribute("offset")),
-            length: parseInt(detectionNode.getAttribute("length"))
-        };
-        
-        var normalizedName;
-        try {
-            normalizedName = entityNode.getElementsByTagName(entityType)[0].firstChild.nodeValue;
-        } catch (ex) {
-            // Event & Fact (BUG!!!)
-            normalizedName = detection.text;
-        }
-        
-        if (normalizedName in map) {
-            map[normalizedName].detections.push(detection);
-        } else {
-            map[normalizedName] = {
-                entityType: entityType,
-                detections: [ detection ]
-            };
-            list.push(normalizedName);
-        }
-    }
-    
+	if (root) {
+	    var entities = root.getElementsByTagName("Entities")[0].childNodes;
+	    for (var i = 0 ; i < entities.length ; i++) {
+	        var entityNode = entities[i];
+	        var entityType = entityNode.nodeName;
+	        
+	        var detectionNode = entityNode.getElementsByTagName("Detection")[0];
+	        var detection = {
+	            text:   detectionNode.firstChild.nodeValue,
+	            offset: parseInt(detectionNode.getAttribute("offset")),
+	            length: parseInt(detectionNode.getAttribute("length"))
+	        };
+	        
+	        var normalizedName;
+	        try {
+	            normalizedName = entityNode.getElementsByTagName(entityType)[0].firstChild.nodeValue;
+	        } catch (ex) {
+	            // Event & Fact (BUG!!!)
+	            normalizedName = detection.text;
+	        }
+	        
+	        if (normalizedName in map) {
+	            map[normalizedName].detections.push(detection);
+	        } else {
+	            map[normalizedName] = {
+	                entityType: entityType,
+	                detections: [ detection ]
+	            };
+	            list.push(normalizedName);
+	        }
+	    }
+	}
+	
     var entries = [];
     for (var i = 0; i < list.length; i++) {
         var normalizedName = list[i];

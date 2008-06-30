@@ -66,8 +66,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 	var collection = this._pageSession.collection;
 	collection.addListener(this._collectionListener);
 	
-    this._addAugmentingStyles();
-	this._addAugmentations();
 	this._highlightAugmentations();
 	
     var facetLabel = document.getElementById("companion-strings").
@@ -168,6 +166,13 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {
 	return this._pageSession.windowSession.browser.contentDocument;
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._prepareAugmentations = function() {
+	if (!Companion.hasAugmentingStyles(this._getDocument())) {
+		this._addAugmentingStyles();
+		this._addAugmentations();
+	}
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentingStyles = function() {
@@ -293,9 +298,12 @@ Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = functi
 
 Companion.PageSession.ActiveAugmentingStage.prototype._removeAugmentations = function() {
 	var doc = this._getDocument();
+	// TODO
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._highlightAugmentations = function() {
+    this._prepareAugmentations();
+
 	var items = this._pageSession.collection.getRestrictedItems();
 	var doc = this._getDocument();
 	var spans = doc.getElementsByTagName("span");
@@ -347,11 +355,12 @@ Companion.PageSession.ActiveAugmentingStage.prototype._showTargetCircles = funct
 	}
 	containerDiv.innerHTML = '<div style="position: relative; width: 100%; height: 100%; overflow: hidden"></div>';
 	
+	var win = doc.defaultView;
 	var minTop = doc.body.scrollHeight;
 	var maxTop = 0;
 	
-	var scrollTop = doc.body.scrollTop;
-	var scrollLeft = doc.body.scrollLeft;
+	var scrollTop = win.scrollY;
+	var scrollLeft = win.scrollX;
 	for (var i = 0; i < elmts.length; i++) {
 		try {
 			var elmt = elmts[i];
@@ -374,7 +383,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._showTargetCircles = funct
 	}
 	
 	if (minTop >= scrollTop + doc.body.clientHeight) { // need to scroll down
-		doc.body.scrollTop = Math.min(doc.body.scrollHeight - doc.body.clientHeight, minTop - 100);
+		doc.body.scrollTop = Math.min(win.scrollMaxY, minTop - 100);
 	} else if (maxTop < scrollTop) { // need to scroll up
 		doc.body.scrollTop = Math.max(0, maxTop - (doc.body.clientHeight - 100));
 	}
@@ -471,6 +480,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._hideLightboxOverlay = fun
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(fbids) {
-	var url = "metaweb:browse?fbids=" + encodeURIComponent(fbids.join(";"));
+	var url = "dataweb:browse?fbids=" + encodeURIComponent(fbids.join(";"));
 	this._pageSession.windowSession.browser.setAttribute("src", url);
 };

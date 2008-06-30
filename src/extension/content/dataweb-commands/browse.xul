@@ -2,7 +2,7 @@
 <page
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	xmlns:html="http://www.w3.org/1999/xhtml"
-	title="Metaweb Browsing">
+	title="Dataweb Browsing">
 	
 	<browser id="the-browser" flex="1" />
 	<script>
@@ -12,7 +12,7 @@
 		*/
 		var href = document.location.href;
 		var q = href.indexOf("?");
-		var url = "chrome://companion/content/metaweb-commands/browse-inner.xul" + href.substr(q);
+		var url = "chrome://companion/content/dataweb-commands/browse-inner.xul" + href.substr(q);
 		document.getElementById("the-browser").setAttribute("src", url);
 	</script>
 </page>
