@@ -33,8 +33,8 @@ Companion.FacetUtilities.constructFacetFrame = function(parentVbox, facetLabel, 
     
     var r = {
         header: 		header,
-        //closeButton: 	header.childNodes[0],
         headerLabel: 	header.childNodes[0].childNodes[0].childNodes[0],
+		slidingLink:	header.childNodes[0].childNodes[0].childNodes[2].childNodes[1],
         reset: 			header.childNodes[1],
         valuesContainer: valuesContainer,
         setSelectionCount: function(count) {

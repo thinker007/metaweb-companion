@@ -73,6 +73,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
     var facetLabel = document.getElementById("companion-strings").
         getString("companion.pageSession.activeAugmentingStagePage.filterByTypes.label");
         
+	var self = this;
 	var config = {
 		facetLabel:     facetLabel,
 		expression:     ".type",
@@ -82,7 +83,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 		sortMode:       "count",
 		sortDirection:  "forward",
 		showMissing:    false,
-		fixedOrder: 	[]
+		fixedOrder: 	[],
+		slideFreebase: function(fbids) { self._slideFreebase(fbids); }
 	};
 	this._typeFacet = this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
 };
@@ -138,6 +140,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 		}
 	}
 	
+	var self = this;
 	for (var propertyID in newProperties) {
 		if (database.countDistinctObjectsUnion(items, propertyID) > 1) {
             var propertyRecord = database.getProperty(propertyID);
@@ -153,7 +156,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 				sortDirection:  "forward",
 				showMissing:    true,
 				missingLabel:   "(missing value)",
-				fixedOrder: 	[]
+				fixedOrder: 	[],
+				slideFreebase:  function(fbids) { self._slideFreebase(fbids); }
 			};
 			var facet = this._appendFacet(database, collection, propertyID + "-facet", config);
 			this._facets.push(facet);
@@ -464,4 +468,9 @@ Companion.PageSession.ActiveAugmentingStage.prototype._hideLightboxOverlay = fun
     if (overlayDiv) {
         overlayDiv.parentNode.removeChild(overlayDiv);
     }
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(fbids) {
+	var url = "metaweb:browse?fbids=" + encodeURIComponent(fbids.join(";"));
+	this._pageSession.windowSession.browser.setAttribute("src", url);
 };

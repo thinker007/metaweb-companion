@@ -122,7 +122,7 @@ Companion.ListFacet.prototype.restrict = function(items) {
 
 Companion.ListFacet.prototype.update = function(items) {
     if (!this._changingSelection) {
-        this._entries = this._computeFacet(items);
+        this._computeFacet(items);
         this._constructBody();
     }
 };
@@ -146,6 +146,7 @@ Companion.ListFacet.prototype._computeFacet = function(items) {
             entry.selected = selection.contains(entry.value);
         }
     }
+	this._nonMissingEntriesCount = entries.length;
     
     if (this._settings.showMissing || this._selectMissing) {
         var count = this._cache.countItemsMissingValue(items);
@@ -161,7 +162,7 @@ Companion.ListFacet.prototype._computeFacet = function(items) {
     }
     entries.sort(this._createSortFunction(valueType));
     
-    return entries;
+	this._entries = entries;
 }
 
 Companion.ListFacet.prototype._notifyCollection = function() {
@@ -187,6 +188,12 @@ Companion.ListFacet.prototype.refresh = function() {
 
 Companion.ListFacet.prototype._registerEventListeners = function() {   
     var self = this;
+    this._dom.slidingLink.onmousedown = function(event) {
+        return Companion.cancelEvent(event);
+    };
+    this._dom.slidingLink.onclick = function(event) {
+		self._onSlidingLinkClick(event);
+	};
     this._dom.reset.onmousedown = function(event) {
         return Companion.cancelEvent(event);
     };
@@ -207,9 +214,7 @@ Companion.ListFacet.prototype._registerEventListeners = function() {
             self._onFilterKeyUp(event);
         };
     }
-    this._dom.headerLabel.onmousedown = function(e) {
-        Companion.startDraggingFacet(e, self, self._box);
-    };
+	
 	/*
     this._dom.closeButton.onclick = function(e) {
         Companion.removeFacet(self);
@@ -281,7 +286,7 @@ Companion.ListFacet.prototype._constructBody = function() {
             };
         }
     }
-    
+    this._dom.slidingLink.innerHTML = this._nonMissingEntriesCount;
     this._dom.setSelectionCount(this._valueSet.size() + (this._selectMissing ? 1 : 0));
     
     this._constructingBody = false;
@@ -342,6 +347,20 @@ Companion.ListFacet.prototype._onFilterKeyUp = function(event) {
     } else {
         view.wrappedJSObject.setFilter(text);
     }
+};
+
+Companion.ListFacet.prototype._onSlidingLinkClick = function(event) {
+	var fbids = [];
+	
+	var entries = this._entries;
+	for (var i = 0; i < entries.length; i++) {
+		var entry = entries[i];
+		if (entry.value != null) {
+			fbids.push(entry.value);
+		}
+	}
+	
+	this._settings.slideFreebase(fbids);
 };
 
 Companion.ListFacet.prototype._createSortFunction = function(valueType) {

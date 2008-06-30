@@ -1,0 +1,40 @@
+@namespace url("http://www.w3.org/1999/xhtml");
+
+table {
+    font-size: 100%;
+}
+
+a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.view {
+    margin:      1em;
+    font-family: "Lucida Grande", Tahoma, Verdana, Arial, Helvetica, sans-serif;
+    font-size:   10pt;
+    float:       left;
+	background:	 white;
+}
+
+.freebase-hotshot-container {
+    width:      30em;
+    padding:    1em;
+    border:     1px solid #ccc;
+    height:     18em;
+    overflow:   hidden;
+}
+
+.freebase-hotshot-name {
+    font-size: 120%;
+}
+
+.freebase-hotshot-thumbnail {
+    margin: 10px;
+}
+
+.freebase-hotshot-links {
+    font-size: 90%;
+    margin-bottom: 1em;
+}
