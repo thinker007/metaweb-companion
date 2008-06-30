@@ -21,9 +21,6 @@ var MetawebProtocolHandlerModule = {
 			fileSpec, 
 			location, 
 			type);
-		
-		//var categoryManager = Components.classes['@mozilla.org/categorymanager;1'].getService(Components.interfaces.nsICategoryManager);
-		//categoryManager.addCategoryEntry('protocol', MetawebScheme, MetawebProtocolContractID, true, true);
 
 		this._initialize();
 	},
@@ -93,8 +90,8 @@ MetawebProtocol.prototype = {
 	defaultPort: 	-1,
 	
 	protocolFlags: 
-		Components.interfaces.nsIProtocolHandler.URI_NORELATIVE |
-		Components.interfaces.nsIProtocolHandler.URI_NOAUTH,
+		Components.interfaces.nsIProtocolHandler.URI_NORELATIVE
+		| Components.interfaces.nsIProtocolHandler.URI_IS_UI_RESOURCE,
 	
 	allowPort: function(port, scheme) {
 		return false;
@@ -126,7 +123,7 @@ MetawebProtocol.prototype = {
 			//return ioService.newChannelFromURI(ioService.newURI("http://google.com/", null, null));
 			
 			var command = metawebUriSpec.substr(0, question);
-			fileURL = chromeContentPath + "metaweb-commands/" + command + ".html";
+			fileURL = chromeContentPath + "metaweb-commands/" + command + ".xul";
 		}
 		
 		var fileUri = ioService.newURI(fileURL, null, null);

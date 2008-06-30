@@ -151,7 +151,7 @@
 	                <hbox class="companion-facet-header" id="companion-facet-header"
 						xmlns:html="http://www.w3.org/1999/xhtml">
 	                    <box flex="1">
-							<html:div><html:span class="companion-facet-header-label"></html:span> <html:a></html:a></html:div>
+							<html:div><html:span class="companion-facet-header-label"></html:span> <html:span class="companion-facet-header-slidingLink">(<html:a>?</html:a>)</html:span></html:div>
 						</box>
 						<html:div style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:div>
 	                </hbox>

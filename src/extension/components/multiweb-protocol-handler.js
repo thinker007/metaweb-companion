@@ -8,7 +8,7 @@ function log(msg) {
 const MultiwebScheme = "multiweb";
 const MultiwebProtocolName = "multiweb: URI scheme";
 const MultiwebProtocolContractID = "@mozilla.org/network/protocol;1?name=" + MultiwebScheme;
-const MultiwebProtocolCID = Components.ID("{3a92fc7e-ad74-4aff-a6ef-2c3316075bbc}");
+const MultiwebProtocolCID = Components.ID("{75be7656-39a4-4c87-a63a-b345a11ace74}");
 
 
 var MultiwebProtocolHandlerModule = {
@@ -21,9 +21,6 @@ var MultiwebProtocolHandlerModule = {
 			fileSpec, 
 			location, 
 			type);
-		
-		//var categoryManager = Components.classes['@mozilla.org/categorymanager;1'].getService(Components.interfaces.nsICategoryManager);
-		//categoryManager.addCategoryEntry('protocol', MultiwebScheme, MultiwebProtocolContractID, true, true);
 
 		this._initialize();
 	},
@@ -94,9 +91,7 @@ MultiwebProtocol.prototype = {
 	
 	protocolFlags: 
 		Components.interfaces.nsIProtocolHandler.URI_NORELATIVE
-		| Components.interfaces.nsIProtocolHandler.URI_IS_UI_RESOURCE
-		//| Components.interfaces.nsIProtocolHandler.URI_NOAUTH
-		,
+		| Components.interfaces.nsIProtocolHandler.URI_IS_UI_RESOURCE,
 	
 	allowPort: function(port, scheme) {
 		return false;
