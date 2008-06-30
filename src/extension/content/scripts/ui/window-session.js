@@ -73,19 +73,20 @@ Companion.WindowSession.prototype._initializeUserInterface = function() {
         },
     
         stateIsRequest: false,
-        onStateChange : function() {},
-        onProgressChange : function() {},
-        onStatusChange : function() {},
-        onSecurityChange : function() {},
-        onLinkIconAvailable : function() {}, 
-        onLocationChange: function(progress, request, location) {
+        onStateChange : function(progress, request, flags, status) {
             // Only watch windows that are their own parent - e.g. not frames
-            if (progress.DOMWindow.parent == progress.DOMWindow) {
+            if (progress.DOMWindow.parent == progress.DOMWindow && 
+				(flags & Components.interfaces.nsIWebProgressListener.STATE_STOP)) {
                 if (self._tabHasFocus) {
                     self._updateUserInterface();
                 }
             }
-        }
+		},
+        onProgressChange : function() {},
+        onStatusChange : function() {},
+        onSecurityChange : function() {},
+        onLinkIconAvailable : function() {}, 
+        onLocationChange: function(progress, request, location) {}
     };
     this.browser.addProgressListener(this._progressListener, 
         Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
