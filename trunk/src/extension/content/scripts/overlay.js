@@ -107,3 +107,7 @@ Companion.removeAugmentingStyles = function(doc) {
 		style.parentNode.removeChild(style);
     }
 };
+
+Companion.hasAugmentingStyles = function(doc) {
+    return (doc.getElementById(Companion.augmentingStyles.styleID));
+};
