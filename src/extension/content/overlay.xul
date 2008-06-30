@@ -117,22 +117,49 @@
 	                </hbox>
 					<separator class="groove" />
 					
+                    <hbox class="companion-pageSession-activeAugmentingStagePage-section">
+                        <label value="&companion.pageSession.activeAugmentingStagePage.filterByTypes.label;"
+                            class="companion-pageSession-activeAugmentingStagePage-sectionLabel"
+                            flex="1" 
+                            />
+                    </hbox>
+                    
 	                <vbox class="companion-typeFacet" />
 	                <splitter class="companion-facetContainer-splitter" />
 	                
-	                <hbox>
-    	                <label value="&companion.pageSession.activeAugmentingStagePage.filterbyProperties.label;"
-    	                    class="companion-facetContainer-sectionLabel"
-    	                    flex="1" 
-    	                    />
-                        <html:div style="display: none;"><html:a href="javascript:{}">&companion.facetContainer.resetAllLink.label;</html:a></html:div>
-    	            </hbox>
-	                <scrollbox
-	                   class="companion-facetContainer" 
-	                   orient="vertical" 
-	                   flex="1" 
-	                   style="overflow: auto;" 
-	                   />
+	                <deck flex="1" class="companion-facetContainer-outerDeck">
+	                    <vbox flex="1">
+	                        <label value="Select one or more types from the list above." />
+	                        <spacer flex="1" />
+	                    </vbox>
+                        <vbox flex="1">
+        	                <hbox class="companion-pageSession-activeAugmentingStagePage-section">
+            	                <label value="&companion.pageSession.activeAugmentingStagePage.filterByProperties.label;"
+            	                    class="companion-pageSession-activeAugmentingStagePage-sectionLabel"
+            	                    flex="1" 
+            	                    />
+                                <html:div style="display: none;"><html:a href="javascript:{}">&companion.facetContainer.resetAllLink.label;</html:a></html:div>
+            	            </hbox>
+            	            
+                            <hbox flex="1">
+                                <listbox 
+                                    class="companion-facetContainer-list"
+                                    flex="1" 
+                                    seltype="single"
+                                    >
+                                    </listbox>
+                                
+                                <splitter class="companion-facetContainer-splitter" />
+                                
+                                <deck flex="1">
+                                    <vbox flex="1">
+                                        <label value="Select a property in the list on the left." />
+                                        <spacer flex="1" />
+                                    </vbox>
+                                </deck>
+                            </hbox>
+                        </vbox>
+                    </deck>
 				</vbox>
 				
 	            <!-- active-meta stage -->
@@ -148,17 +175,22 @@
 				
 	            <!-- facet template -->
 	            <box id="companion-facet-template">
-	                <hbox class="companion-facet-header" id="companion-facet-header"
+	                <hbox id="companion-facet-header"
+	                    class="companion-facet-header" 
 						xmlns:html="http://www.w3.org/1999/xhtml">
 	                    <box flex="1">
 							<html:div><html:span class="companion-facet-header-label"></html:span> <html:span class="companion-facet-header-slidingLink">(<html:a>?</html:a>)</html:span></html:div>
 						</box>
 						<html:div style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:div>
 	                </hbox>
-	                <html:div class="companion-facet-quickFilter" id="companion-facet-quickFilter">
-	                    <html:input></html:input>
-	                </html:div>
-	                <tree class="companion-facet-valuesContainer" flex="1" seltype="multiple" id="companion-facet-valuesContainer">
+	                
+	                <html:div id="companion-facet-quickFilter"
+	                    class="companion-facet-quickFilter"><html:div><html:input></html:input></html:div></html:div>
+	                
+	                <tree id="companion-facet-valuesContainer"
+	                    class="companion-facet-valuesContainer"
+	                    flex="1"
+	                    seltype="multiple">
 	                    <treecols>
 	                        <treecol id="value-column" label="value" flex="1" />
 	                        <treecol id="count-column" label="#" flex="0" style="width: 4em; text-align: right;" />

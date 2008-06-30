@@ -23,17 +23,18 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     this._dom.analyzeButton = this._page.childNodes[0].childNodes[1];
     this._dom.analyzeButton.addEventListener('command', function(event) { self._pageSession.analyze(); }, true);
     
-    this._dom.resetAllLink = this._page.childNodes[4].childNodes[1];
+    this._dom.typeFacetContainer = this._page.getElementsByTagName("vbox")[0];
+    
+    this._dom.facetOuterDeck = this._page.lastChild;
+    
+    this._dom.resetAllLink = this._dom.facetOuterDeck.childNodes[1].childNodes[0].childNodes[1];//.childNodes[0];
     this._dom.resetAllLink.addEventListener('click', function(event) { self._onClickResetAllLink(); }, true);
     
-    this._dom.typeFacetContainer = this._page.getElementsByTagName("vbox")[0];
-    this._dom.facetContainer = this._page.getElementsByTagName("scrollbox")[0];
+    this._dom.facetList = this._dom.facetOuterDeck.childNodes[1].childNodes[1].childNodes[0];
+    this._dom.facetList.addEventListener('select', function(event) { self._onSelectFacetList(); }, true);
+    this._dom.facetDeck = this._dom.facetOuterDeck.childNodes[1].childNodes[1].childNodes[2];
 	
     this._containerBox.appendChild(this._page);
-    
-    var spacer = document.createElement("spacer");
-    spacer.style.height = "5px";
-    this._dom.facetContainer.appendChild(spacer);
     
     this._listResults();
 };
@@ -98,6 +99,15 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 	this._typeFacet = this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
 };
 
+Companion.PageSession.ActiveAugmentingStage.prototype._onSelectFacetList = function() {
+    var i = this._dom.facetList.selectedIndex;
+    if (i < 0) {
+        this._dom.facetDeck.selectedIndex = this._dom.facetDeck.childNodes.length - 1;
+    } else {
+        this._dom.facetDeck.selectedIndex = i;
+    }
+};
+
 Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {
     this._hideLightboxOverlay();
 	this._highlightAugmentations();
@@ -132,7 +142,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
     	});
 	}
     
-	var facetContainer = this._dom.facetContainer;
 	for (var i = this._facetProperties.length - 1; i >= 0; i--) {
 		var facetProperty = this._facetProperties[i];
 		if (facetProperty in newProperties) {
@@ -143,8 +152,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 				this._facets.splice(i, 1);
 				this._facetProperties.splice(i, 1);
 				
-				facetContainer.removeChild(facetContainer.childNodes[i*2]); // the facet box
-				facetContainer.removeChild(facetContainer.childNodes[i*2]); // splitter
+                this._dom.facetList.removeItemAt(i);
+                this._dom.facetDeck.removeChild(this._dom.facetDeck.childNodes[i]);
 			}
 		}
 	}
@@ -173,6 +182,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 			this._facetProperties.push(propertyID);
 		}
 	}
+    
+    this._dom.facetOuterDeck.selectedIndex = (this._facets.length > 0) ? 1 : 0;
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {
@@ -431,11 +442,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._appendFacet =
     vbox.style.height = "17em";
     vbox.className = "companion-facet-box";
 	
-    this._dom.facetContainer.insertBefore(vbox, this._dom.facetContainer.lastChild);
-    
-    this._dom.facetContainer.insertBefore(
-		Companion.FacetUtilities.createFacetSplitter(), 
-		this._dom.facetContainer.lastChild);
+    this._dom.facetList.appendItem(config.facetLabel, config.facetLabel);
+    this._dom.facetDeck.insertBefore(vbox, this._dom.facetDeck.lastChild);
     
 	return this._createFacet(database, collection, name, config, vbox);
 };

@@ -20,26 +20,33 @@ listbox.companion-pageSession-activatingStagePage-logList {
 }
 
 .companion-facet-box {
-    height: 17em;
-    margin-top: 1em;
 }
 
 splitter.companion-facetContainer-splitter {
     border-top: none;
     border-bottom: none;
+    border-left: none;
+    border-right: none;
 }
 
-.companion-facet-header label {
+.companion-pageSession-activeAugmentingStagePage-section {
+	padding:       0px;
+	margin:        5px 0px;
 }
 
-.companion-facetContainer-sectionLabel {
-	font-size: 120%;
-	font-weight: bold;
+.companion-pageSession-activeAugmentingStagePage-sectionLabel {
+    font-size:     120%;
+    font-weight:   bold;
+    padding:       0px;
+    margin:        0px;
 }
 
-.companion-facetContainer {
-	padding: 5px;
-	-moz-appearance: listbox;
+.companion-facetContainer-outerDeck {
+	margin-top: 1em;
+}
+
+.companion-facetContainer-list {
+    margin: 0px;
 }
 
 tree.companion-facet-valuesContainer {
@@ -49,5 +56,8 @@ tree.companion-facet-valuesContainer {
     border-bottom-style: none;
     border-left-style: none;
     border-right-style: none;
+}
+
+.companion-facet-header label {
 }
 
