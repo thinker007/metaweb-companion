@@ -194,10 +194,10 @@ Companion.ListFacet.prototype._registerEventListeners = function() {
     this._dom.slidingLink.onclick = function(event) {
 		self._onSlidingLinkClick(event);
 	};
-    this._dom.reset.onmousedown = function(event) {
+    this._dom.resetLink.onmousedown = function(event) {
         return Companion.cancelEvent(event);
     };
-    this._dom.reset.onclick = function(event) {
+    this._dom.resetLink.onclick = function(event) {
         if (self._settings.filterable) {
             self._dom.filterHintedTextbox.setValue("");
         }
@@ -231,6 +231,7 @@ Companion.ListFacet.prototype._constructBody = function() {
     if (this._settings.filterable) {
         treeView.setFilter(this._dom.filterHintedTextbox.getValue());
     }
+    
     tree.treeBoxObject.view = treeView;
     
     var selection = treeView.selection;
@@ -286,7 +287,10 @@ Companion.ListFacet.prototype._constructBody = function() {
             };
         }
     }
-    this._dom.slidingLink.innerHTML = this._nonMissingEntriesCount;
+    this._dom.setSlidingText(String.substitute(
+        Companion.strings.getString("companion.facet.slidingLinkLabel"),
+        [ "these " + this._nonMissingEntriesCount + " " + this._settings.expectedTypeLabel ]
+    ));
     this._dom.setSelectionCount(this._valueSet.size() + (this._selectMissing ? 1 : 0));
     
     this._constructingBody = false;

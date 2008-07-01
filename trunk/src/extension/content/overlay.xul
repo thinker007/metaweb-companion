@@ -175,16 +175,8 @@
 				
 	            <!-- facet template -->
 	            <box id="companion-facet-template">
-	                <hbox id="companion-facet-header"
-	                    class="companion-facet-header" 
-						xmlns:html="http://www.w3.org/1999/xhtml">
-	                    <box flex="1">
-							<html:div><html:span class="companion-facet-header-label"></html:span> <html:span class="companion-facet-header-slidingLink">(<html:a>?</html:a>)</html:span></html:div>
-						</box>
-						<html:div style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:div>
-	                </hbox>
-	                
 	                <html:div id="companion-facet-quickFilter"
+	                    xmlns:html="http://www.w3.org/1999/xhtml"
 	                    class="companion-facet-quickFilter"><html:div><html:input></html:input></html:div></html:div>
 	                
 	                <tree id="companion-facet-valuesContainer"
@@ -197,6 +189,15 @@
 	                    </treecols>
 	                    <treechildren />
 	                </tree>
+	                
+	                <hbox id="companion-facet-footer"
+	                    xmlns:html="http://www.w3.org/1999/xhtml">
+	                    <html:ul>
+                           <html:li style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:li>
+	                       <html:li><html:a href="javascript:{}">&companion.facet.fillInMissingData.label;</html:a></html:li>
+                           <html:li><html:a href="javascript:{}">Browse to these 6 people</html:a></html:li>
+	                    </html:ul>
+	                </hbox>
 	            </box>
 			</box><!-- all templates -->
 			
