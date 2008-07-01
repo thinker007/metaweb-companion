@@ -179,7 +179,8 @@ FreebaseService.getTypeProperties = function(types, onDone) {
 		{
 			"/type/type/properties" : [{
                 "id" : null,
-                "name" : null
+                "name" : null,
+                "expected_type" : [{ "name" : null }]
             }],
 			"id" : null,
 			"id|=" : types

@@ -200,6 +200,13 @@ Companion.PageSession.ActivatingStage.prototype._onDoneGetTypeProperties = funct
             var propertyRecord = database.getProperty(propertyEntry.id);
             if (propertyRecord != null) {
                 propertyRecord._label = propertyRecord._pluralLabel = propertyEntry.name;
+                
+                if ("expected_type" in propertyEntry) {
+                    var expectedTypes = propertyEntry["expected_type"];
+                    if (expectedTypes.length > 0) {
+                        propertyRecord._expectedTypeLabel = expectedTypes[0].name;
+                    }
+                }
             }
         }
         typeProperties[typePropertyEntry.id] = propertyIDs;

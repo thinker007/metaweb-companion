@@ -85,16 +85,17 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
         
 	var self = this;
 	var config = {
-		facetLabel:     facetLabel,
-		expression:     ".type",
-		filterable:     true,
-		selectMultiple: true,
-		sortable:       true,
-		sortMode:       "count",
-		sortDirection:  "forward",
-		showMissing:    false,
-		fixedOrder: 	[],
-		slideFreebase: function(fbids) { self._slideFreebase(fbids); }
+		facetLabel:           facetLabel,
+        expectedTypeLabel:    "types",
+		expression:           ".type",
+		filterable:           true,
+		selectMultiple:       true,
+		sortable:             true,
+		sortMode:             "count",
+		sortDirection:        "forward",
+		showMissing:          false,
+		fixedOrder: 	      [],
+		slideFreebase:        function(fbids) { self._slideFreebase(fbids); }
 	};
 	this._typeFacet = this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
 };
@@ -163,19 +164,22 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 		if (database.countDistinctObjectsUnion(items, propertyID) > 1) {
             var propertyRecord = database.getProperty(propertyID);
             var label = (propertyRecord != null) ? propertyRecord.getLabel() : propertyID;
+            var expectedTypeLabel = (propertyRecord != null && "_expectedTypeLabel" in propertyRecord) ? 
+                propertyRecord._expectedTypeLabel : "related things";
             
 			var config = {
-				facetLabel:     label,
-				expression:     "." + propertyID,
-				filterable:     true,
-				selectMultiple: true,
-				sortable:       true,
-				sortMode:       "value",
-				sortDirection:  "forward",
-				showMissing:    true,
-				missingLabel:   "(missing value)",
-				fixedOrder: 	[],
-				slideFreebase:  function(fbids) { self._slideFreebase(fbids); }
+				facetLabel:         label,
+                expectedTypeLabel:  expectedTypeLabel,
+				expression:         "." + propertyID,
+				filterable:         true,
+				selectMultiple:     true,
+				sortable:           true,
+				sortMode:           "value",
+				sortDirection:      "forward",
+				showMissing:        true,
+				missingLabel:       "(missing value)",
+				fixedOrder: 	    [],
+				slideFreebase:      function(fbids) { self._slideFreebase(fbids); }
 			};
 			var facet = this._appendFacet(database, collection, propertyID + "-facet", config);
 			this._facets.push(facet);
@@ -183,6 +187,9 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 		}
 	}
     
+    if (this._dom.facetList.selectedIndex == -1 && this._facets.length > 0) {
+        this._dom.facetList.selectedIndex = 0;
+    }
     this._dom.facetOuterDeck.selectedIndex = (this._facets.length > 0) ? 1 : 0;
 };
 

@@ -1,6 +1,7 @@
 <!ENTITY companion.menuItem.toggleSidepane.label "Metaweb Companion">
-<!ENTITY companion.facet.resetLink.label "reset">
+<!ENTITY companion.facet.resetLink.label "Clear selection in list above">
 <!ENTITY companion.facetContainer.resetAllLink.label "reset all">
+<!ENTITY companion.facet.fillInMissingData.label "Fill in missing data">
 
 <!ENTITY companion.pageSession.activeAugmentingStagePage.filterByTypes.label "Filter by Types">
 <!ENTITY companion.pageSession.activeAugmentingStagePage.filterByProperties.label "Filter by Properties">
