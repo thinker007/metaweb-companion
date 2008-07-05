@@ -36,6 +36,12 @@
 	
     <script src="scripts/services/opencalais.js" />
     <script src="scripts/services/freebase.js" />
+	
+	<script src="scripts/processes/entity-identification-process.js" />
+	<script src="scripts/processes/data-retrieving-process.js" />
+	
+	<script src="scripts/models/identity-model.js" />
+	<script src="scripts/models/freebase-model.js" />
     
 	<stringbundleset id="stringbundleset">
 	    <stringbundle id="companion-strings" src="chrome://companion/locale/companion.properties"/>

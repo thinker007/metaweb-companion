@@ -115,7 +115,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 	
     var database = this._pageSession.database;
 	var collection = this._pageSession.collection;
-	var typeProperties = this._pageSession.typeProperties;
+	var freebaseModel = this._pageSession.freebaseModel;
 	
     var hasRestrictions = this._typeFacet.hasRestrictions();
     for (var i = 0; !hasRestrictions && i < this._facets.length; i++) {
@@ -131,7 +131,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
     	var items = collection.getRestrictedItems();
     	var types = database.getObjectsUnion(items, "type");
     	types.visit(function(typeID) {
-    		var properties = typeProperties[typeID];
+    		var properties = freebaseModel.getPropertiesOfType(typeID);
     		if (properties) {
     			for (var i = 0; i < properties.length; i++) {
     				var propertyID = properties[i];
@@ -222,31 +222,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = functi
 		"his":true, "hers":true, "mine":true, "yours":true, "ours":true, "theirs":true
 	};
 	
-	var detectionEntries = this._pageSession.detectionEntries;
-	var detectionToIds = {};
-	var detections = [];
-	for (var i = 0; i < detectionEntries.length; i++) {
-		var entry = detectionEntries[i];
-        var rr = entry.freebaseReconciliationResult;
-        if ("id" in rr) {
-			var id = rr.id;
-			
-			var detections2 = entry.detections;
-			for (var j = 0; j < detections2.length; j++) {
-				var detection = detections2[j];
-				var text = detection.text;
-				if (text.toLowerCase() in ignore) {
-					continue;
-				}
-				if (!(text in detectionToIds)) {
-					detectionToIds[text] = {};
-					detections.push(text);
-				}
-				detectionToIds[text][id] = true;
-			}
-        }
-	}
-	detections.sort().reverse();
+	var identityModel = this._pageSession.identityModel;
+	var index = identityModel.createManifestationIndex(ignore);
 	
 	var processElement = function(elmt) {
 		var tagName = elmt.tagName;
@@ -265,31 +242,32 @@ Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = functi
 		}
 	};
 	
+	var manifestations = index.manifestations;
 	var processTextNode = function(textNode) {
 		var text = textNode.nodeValue;
 		
 		var i = 0;
-		for (; i < detections.length; i++) {
-			var detection = detections[i];
-			if (detection.length <= text.length) {
+		for (; i < manifestations.length; i++) {
+			var manifestation = manifestations[i];
+			if (manifestation.length <= text.length) {
 				break;
 			}
 		}
-		for (; i < detections.length; i++) {
-			var detection = detections[i];
-			var l = text.indexOf(detection);
+		for (; i < manifestations.length; i++) {
+			var manifestation = manifestations[i];
+			var l = text.indexOf(manifestation);
 			if (l >= 0) {
 				var before = text.substr(0, l);
-				var after = text.substr(l + detection.length);
+				var after = text.substr(l + manifestation.length);
 				var parentNode = textNode.parentNode;
 				
 				var span = doc.createElement("span");
 				span.className = Companion.augmentingStyles.detectionClass;
-				span.appendChild(doc.createTextNode(detection));
+				span.appendChild(doc.createTextNode(manifestation));
 				parentNode.insertBefore(span, textNode);
 				
 				var ids = [];
-				for (var id in detectionToIds[detection]) {
+				for (var id in index.manifestationToIDs[manifestation]) {
 					ids.push(id);
 				}
 				span.setAttribute("itemIDs", ids.join(";"));
