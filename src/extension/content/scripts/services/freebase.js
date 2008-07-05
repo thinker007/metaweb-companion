@@ -68,7 +68,7 @@ FreebaseService._reconcileBatchStateChangeCallback = function(request, entries, 
     cont();
 };
 
-FreebaseService.getAllRelationships = function(ids, onDone, onStatus) {
+FreebaseService.getAllRelationships = function(ids, onDone, onStatus, onError) {
 	var state = { index: 0 };
 	var results = [];
 	var doNext = function() {
@@ -82,16 +82,16 @@ FreebaseService.getAllRelationships = function(ids, onDone, onStatus) {
 			
 			FreebaseService._getAllRelationshipsInBatch(ids, start, end, function(results2) {
                 onStatus("Got " + results2.length + " relationship(s) for entities " + start + " - " + end + " of " + ids.length);
-    
+				
 				results = results.concat(results2);
 				doNext();
-			});
+			}, onError);
 		}
 	};
 	doNext();
 }
 
-FreebaseService._getAllRelationshipsInBatch = function(ids, start, end, onDone) {
+FreebaseService._getAllRelationshipsInBatch = function(ids, start, end, onDone, onError) {
 	var ids2 = ids.slice(start, end);
     var forwardQuery = [
 		{
@@ -142,14 +142,13 @@ FreebaseService._getAllRelationshipsInBatch = function(ids, start, end, onDone) 
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("Content-Length", body.length);
     request.onreadystatechange = function() { 
-		FreebaseService._getAllRelationshipsStateChangeCallback(request, onDone);
+		FreebaseService._getAllRelationshipsStateChangeCallback(request, onDone, onError);
     };
     request.send(body);
 };
 
-FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDone) {
+FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDone, onError) {
     if (request.readyState != 4) {
-        //Companion.log("working...");
         return;
     }
     
@@ -161,13 +160,8 @@ FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDo
             " text = " + request.responseText
         );
         
-        for (var i = 0; i < entries.length; i++) {
-            entries[i].freebaseReconciliationResult = {
-                error: "unknown"
-            };
-        }
+		onError(request);
     } else {
-		//Companion.log(request.responseText);
 		var o = eval("(" + request.responseText + ")");
 		var compoundResults = o.q1.result.concat(o.q2.result);
 		onDone(compoundResults);
