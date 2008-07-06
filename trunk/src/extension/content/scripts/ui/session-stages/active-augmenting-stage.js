@@ -4,6 +4,8 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession, box) {
     
     this._page = null;
     this._dom = null;
+	this._contentHighlighter = null;
+	
 	this._facetProperties = [];
 	this._facets = [];
     this._typeFacet = null;
@@ -49,8 +51,10 @@ Companion.PageSession.ActiveAugmentingStage.prototype.uninstallUserInterface = f
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.dispose = function() {
-	this._removeAugmentations();
-	this._removeAugmentingStyles();
+	if (this._contentHighlighter != null) {
+		this._contentHighlighter.dispose();
+		this._contentHighlighter = null;
+	}
 	
 	var collection = this._pageSession.collection;
 	if (collection != null) {
@@ -78,7 +82,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 	var collection = this._pageSession.collection;
 	collection.addListener(this._collectionListener);
 	
-	this._highlightAugmentations();
+	this._highlightContent();
 	
     var facetLabel = document.getElementById("companion-strings").
         getString("companion.pageSession.activeAugmentingStagePage.filterByTypes.label");
@@ -111,8 +115,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onSelectFacetList = funct
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {
     this._hideLightboxOverlay();
-	this._highlightAugmentations();
-	
+	this._highlightContent();
+
     var database = this._pageSession.database;
 	var collection = this._pageSession.collection;
 	var freebaseModel = this._pageSession.freebaseModel;
@@ -197,211 +201,18 @@ Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() 
 	return this._pageSession.windowSession.browser.contentDocument;
 };
 
-Companion.PageSession.ActiveAugmentingStage.prototype._prepareAugmentations = function() {
-	if (!Companion.hasAugmentingStyles(this._getDocument())) {
-		this._addAugmentingStyles();
-		this._addAugmentations();
-	}
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentingStyles = function() {
-	Companion.addAugmentingStyles(this._getDocument());
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._removeAugmentingStyles = function() {
-	Companion.removeAugmentingStyles(this._getDocument());
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._addAugmentations = function() {
-	var doc = this._getDocument();
-    var self = this;
-	
-	var ignore = { 
-		"i":true, "you":true, "he":true, "she":true, "it":true, "we":true, "they":true, 
-		"me":true, "him":true, "her":true, "us":true, "them":true,
-		"his":true, "hers":true, "mine":true, "yours":true, "ours":true, "theirs":true
-	};
-	
-	var identityModel = this._pageSession.identityModel;
-	var index = identityModel.createManifestationIndex(ignore);
-	
-	var processElement = function(elmt) {
-		var tagName = elmt.tagName;
-		if (tagName == "script") {
-			return;
-		}
-		
-		var child = elmt.firstChild;
-		while (child != null) {
-			// processNode might change the child (such as removing it) so we need to save its next sibling first
-			var nextChild = child.nextSibling;
-			
-			processNode(child);
-			
-			child = nextChild;
-		}
-	};
-	
-	var manifestations = index.manifestations;
-	var processTextNode = function(textNode) {
-		var text = textNode.nodeValue;
-		
-		var i = 0;
-		for (; i < manifestations.length; i++) {
-			var manifestation = manifestations[i];
-			if (manifestation.length <= text.length) {
-				break;
+Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = function() {
+	if (this._contentHighlighter == null) {
+		var self = this;
+		this._contentHighlighter = new Companion.SinglePageContentHighlighter(
+			this._pageSession.identityModel,
+			function(itemIDs) {
+				self._showFreebaseTopics(itemIDs);
 			}
-		}
-		for (; i < manifestations.length; i++) {
-			var manifestation = manifestations[i];
-			var l = text.indexOf(manifestation);
-			if (l >= 0) {
-				var before = text.substr(0, l);
-				var after = text.substr(l + manifestation.length);
-				var parentNode = textNode.parentNode;
-				
-				var span = doc.createElement("span");
-				span.className = Companion.augmentingStyles.detectionClass;
-				span.appendChild(doc.createTextNode(manifestation));
-				parentNode.insertBefore(span, textNode);
-				
-				var ids = [];
-				for (var id in index.manifestationToIDs[manifestation]) {
-					ids.push(id);
-				}
-				span.setAttribute("itemIDs", ids.join(";"));
-                span.addEventListener('click', function(evt) { self._onClickDetection(evt, this); }, true);
-				
-				if (before.length > 0) {
-					var beforeTextNode = doc.createTextNode(before);
-					parentNode.insertBefore(beforeTextNode, span);
-					processTextNode(beforeTextNode);
-				}
-				if (after.length > 0) {
-					textNode.nodeValue = after;
-					processTextNode(textNode);
-				} else {
-					parentNode.removeChild(textNode);
-				}
-				return;
-			}
-		}
-	};
-	
-	var processNode = function(node) {
-		if (node != null) {
-			switch (node.nodeType) {
-			case 1:
-				processElement(node);
-				break;
-			case 3:
-				processTextNode(node);
-				break;
-			}
-		}
-	};
-	
-	processNode(doc.body);
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._removeAugmentations = function() {
-	var doc = this._getDocument();
-	// TODO
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._highlightAugmentations = function() {
-    this._prepareAugmentations();
-
-	var items = this._pageSession.collection.getRestrictedItems();
-	var doc = this._getDocument();
-	var spans = doc.getElementsByTagName("span");
-	var spansToHighlight = [];
-	
-	for (var i = 0; i < spans.length; i++) {
-		var span = spans[i];
-		var classes = span.className;
-		if (classes.indexOf(Companion.augmentingStyles.detectionClass) >= 0) {
-			var found = false;
-			var itemIDs = span.getAttribute("itemIDs");			
-			itemIDs = itemIDs.split(";");
-			
-			for (var j = 0; j < itemIDs.length; j++) {
-				if (items.contains(itemIDs[j])) {
-					found = true;
-					break;
-				}
-			}
-			
-			if (found) {
-				span.className = Companion.augmentingStyles.detectionClass + " " + Companion.augmentingStyles.highlightClass;
-				spansToHighlight.push(span);
-			} else {
-				span.className = Companion.augmentingStyles.detectionClass;
-			}
-		}
+		);
 	}
-	
-    var self = this;
-    window.setTimeout(function() {
-    	self._showTargetCircles(doc, spansToHighlight);
-    }, 1000);
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._showTargetCircles = function(doc, elmts) {
-	var containerID = "metawebCompanion-targetCircleContainer";
-	var containerDiv = doc.getElementById(containerID);
-	if (!(containerDiv)) {
-		containerDiv = doc.createElement("div");
-		containerDiv.id = containerID;
-		containerDiv.style.position = "absolute";
-		containerDiv.style.top = "0px";
-		containerDiv.style.left = "0px";
-		containerDiv.style.width = doc.body.scrollWidth + "px";
-		containerDiv.style.height = doc.body.scrollHeight + "px";
-		containerDiv.style.zIndex = 1000;
-		doc.body.appendChild(containerDiv);
-	}
-	containerDiv.innerHTML = '<div style="position: relative; width: 100%; height: 100%; overflow: hidden"></div>';
-	
-	var win = doc.defaultView;
-	var minTop = doc.body.scrollHeight;
-	var maxTop = 0;
-	
-	var scrollTop = win.scrollY;
-	var scrollLeft = win.scrollX;
-	for (var i = 0; i < elmts.length; i++) {
-		try {
-			var elmt = elmts[i];
-			var rect = elmt.getClientRects().item(0);
-			var top = scrollTop + Math.ceil((rect.top + rect.bottom) / 2 - 50);
-			var left = scrollLeft + Math.ceil((rect.left + rect.right) / 2 - 50);
-			
-			minTop = Math.min(minTop, top);
-			maxTop = Math.max(maxTop, top);
-			
-			var img = doc.createElement("img");
-			img.src = "http://metaweb-companion.googlecode.com/svn/trunk/src/extension/skin/images/target-circle.png";
-			//img.src = "chrome://companion/skin/images/target-circle.png";
-			img.style.position = "absolute";
-			img.style.top = top + "px";
-			img.style.left = left + "px";
-			
-			containerDiv.firstChild.appendChild(img);
-		} catch (e) {}
-	}
-	
-	if (minTop >= scrollTop + doc.body.clientHeight) { // need to scroll down
-		doc.body.scrollTop = Math.min(win.scrollMaxY, minTop - 100);
-	} else if (maxTop < scrollTop) { // need to scroll up
-		doc.body.scrollTop = Math.max(0, maxTop - (doc.body.clientHeight - 100));
-	}
-	
-	containerDiv.style.display = "block";
-	
-	window.setTimeout(function() {
-		containerDiv.style.display = "none";
-	}, 1200);
+	this._contentHighlighter.setDocument(this._getDocument());
+	this._contentHighlighter.highlight(this._pageSession.collection.getRestrictedItems());
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._createFacet = 
@@ -414,9 +225,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._createFacet =
         box, 
         config
     );
-    //Seek._facets.push(facet);
-    //Seek._saveSettings();
-    
     return facet;
 };
 
@@ -431,15 +239,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._appendFacet =
     this._dom.facetDeck.insertBefore(vbox, this._dom.facetDeck.lastChild);
     
 	return this._createFacet(database, collection, name, config, vbox);
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._onClickDetection = function(evt, elmt) {
-    if (elmt.className.indexOf(Companion.augmentingStyles.highlightClass) >= 0) {
-        var itemIDs = elmt.getAttribute("itemIDs");
-        try { this._showFreebaseTopics(itemIDs); } catch (e) { Companion.log(e); }
-            
-        return Companion.cancelEvent(evt);
-    }
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onClickResetAllLink = function() {
@@ -473,8 +272,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._showFreebaseTopics = func
             '</div>';
         overlayDiv.firstChild.firstChild.addEventListener('click', function(evt) { self._hideLightboxOverlay(); }, true);
     }
-        
-    overlayDiv.getElementsByTagName("iframe")[0].src = "http://freebase.com/view" + itemIDs;
+    
+    overlayDiv.getElementsByTagName("iframe")[0].src = "http://freebase.com/view" + itemIDs[0];
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._hideLightboxOverlay = function() {
