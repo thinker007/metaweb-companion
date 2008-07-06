@@ -1,13 +1,14 @@
-Companion.SinglePageContentHighlighter = function(identityModel, focusCallback) {
+Companion.SinglePageContentHighlighter = function(identityModel, focusURLGenerator) {
 	this._identityModel = identityModel;
-	this._focusCallback = focusCallback;
+	this._focusURLGenerator = focusURLGenerator;
 	this._doc = null;
 };
 
 Companion.SinglePageContentHighlighter.prototype.dispose = function() {
 	if (this._doc != null) {
-		this._removeAugmentations(this._doc);
-		this._removeAugmentingStyles(this._doc);
+		this._hideLightboxOverlay();
+		Companion.HighlighterUtil.removeAugmentations(this._doc);
+		Companion.HighlighterUtil.removeAugmentingStyles(this._doc);
 		this._doc = null;
 	}
 	this._identityModel = null;
@@ -15,43 +16,24 @@ Companion.SinglePageContentHighlighter.prototype.dispose = function() {
 
 Companion.SinglePageContentHighlighter.prototype.setDocument = function(doc) {
 	this._doc = doc;
-	this._prepareAugmentations();
 };
 
 Companion.SinglePageContentHighlighter.prototype.highlight = function(identities) {
 	if (this._doc != null) {
+		this._hideLightboxOverlay();
 		this._highlightAugmentations(identities);
 	}
 };
 
-Companion.SinglePageContentHighlighter.prototype._prepareAugmentations = function() {
-	if (this._doc != null && !Companion.HighlighterUtil.hasAugmentingStyles(this._doc)) {
-		this._addAugmentingStyles();
-		this._addAugmentations();
-	}
-};
-
-Companion.SinglePageContentHighlighter.prototype._addAugmentingStyles = function() {
-	Companion.HighlighterUtil.addAugmentingStyles(this._doc);
-};
-
-Companion.SinglePageContentHighlighter.prototype._removeAugmentingStyles = function() {
-	Companion.HighlighterUtil.removeAugmentingStyles(this._doc);
-};
-
-Companion.SinglePageContentHighlighter.prototype._addAugmentations = function() {
-	Companion.HighlighterUtil.addAugmentations(this._doc, this._identityModel, this._focusCallback);
-};
-
-Companion.SinglePageContentHighlighter.prototype._removeAugmentations = function() {
-	Companion.HighlighterUtil.removeAugmentations(this._doc);
-};
-
 Companion.SinglePageContentHighlighter.prototype._highlightAugmentations = function(identities) {
-    this._prepareAugmentations();
-
     var self = this;
 	
+	if (this._doc != null && !Companion.HighlighterUtil.hasAugmentingStyles(this._doc)) {
+		Companion.HighlighterUtil.addAugmentingStyles(this._doc);
+		Companion.HighlighterUtil.addAugmentations(
+			this._doc, this._identityModel, function(itemIDs) { self._focus(itemIDs); });
+	}
+
 	Companion.HighlighterUtil.highlightAugmentations(this._doc, identities, function(spansToHighlight) {
 	    window.setTimeout(function() {
 	    	self._showTargetCircles(self._doc, spansToHighlight);
@@ -113,4 +95,40 @@ Companion.SinglePageContentHighlighter.prototype._showTargetCircles = function(d
 	window.setTimeout(function() {
 		containerDiv.style.display = "none";
 	}, 1200);
+};
+
+Companion.SinglePageContentHighlighter._overlayID = "metawebCompanion-lightboxOverlay";
+Companion.SinglePageContentHighlighter.prototype._focus = function(itemIDs) {
+    var overlayDiv = this._doc.getElementById(Companion.SinglePageContentHighlighter._overlayID);
+    if (!(overlayDiv)) {
+        var self = this;
+        
+        overlayDiv = this._doc.createElement("div");
+        overlayDiv.id = Companion.SinglePageContentHighlighter._overlayID;
+        overlayDiv.style.position = "fixed";
+        overlayDiv.style.top = "0px";
+        overlayDiv.style.left = "0px";
+        overlayDiv.style.width = "100%";
+        overlayDiv.style.height = "100%";
+        overlayDiv.style.zIndex = "10000";
+        this._doc.body.appendChild(overlayDiv);
+        
+        overlayDiv.innerHTML = 
+            '<div style="position: relative; width: 100%; height: 100%;">' +
+                '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; -moz-opacity: 0.5; background-color: black"></div>' +
+                '<div style="position: absolute; top: 70px; left: 70px; right: 70px; bottom: 70px;">' +
+                    '<iframe style="width: 100%; height: 100%;"></iframe>' +
+                '</div>' +
+            '</div>';
+        overlayDiv.firstChild.firstChild.addEventListener('click', function(evt) { self._hideLightboxOverlay(); }, true);
+    }
+    
+    overlayDiv.getElementsByTagName("iframe")[0].src = this._focusURLGenerator(itemIDs);
+};
+
+Companion.SinglePageContentHighlighter.prototype._hideLightboxOverlay = function() {
+    var overlayDiv = this._doc.getElementById(Companion.SinglePageContentHighlighter._overlayID);
+    if (overlayDiv) {
+        overlayDiv.parentNode.removeChild(overlayDiv);
+    }
 };

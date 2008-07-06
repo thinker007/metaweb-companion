@@ -47,7 +47,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype.uninstallUserInterface = f
         this._page = null;
         this._dom = null;
     }
-    this._hideLightboxOverlay();
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.dispose = function() {
@@ -114,7 +113,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onSelectFacetList = funct
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {
-    this._hideLightboxOverlay();
 	this._highlightContent();
 
     var database = this._pageSession.database;
@@ -207,7 +205,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = functi
 		this._contentHighlighter = new Companion.SinglePageContentHighlighter(
 			this._pageSession.identityModel,
 			function(itemIDs) {
-				self._showFreebaseTopics(itemIDs);
+				return "http://freebase.com/view" + itemIDs[0];
 			}
 		);
 	}
@@ -244,44 +242,6 @@ Companion.PageSession.ActiveAugmentingStage.prototype._appendFacet =
 Companion.PageSession.ActiveAugmentingStage.prototype._onClickResetAllLink = function() {
     var collection = this._pageSession.collection;
     collection.clearAllRestrictions();
-};
-
-Companion.PageSession.ActiveAugmentingStage._overlayID = "metawebCompanion-lightboxOverlay";
-Companion.PageSession.ActiveAugmentingStage.prototype._showFreebaseTopics = function(itemIDs) {
-    var doc = this._getDocument();
-    var overlayDiv = doc.getElementById(Companion.PageSession.ActiveAugmentingStage._overlayID);
-    if (!(overlayDiv)) {
-        var self = this;
-        
-        overlayDiv = doc.createElement("div");
-        overlayDiv.id = Companion.PageSession.ActiveAugmentingStage._overlayID;
-        overlayDiv.style.position = "fixed";
-        overlayDiv.style.top = "0px";
-        overlayDiv.style.left = "0px";
-        overlayDiv.style.width = "100%";
-        overlayDiv.style.height = "100%";
-        overlayDiv.style.zIndex = "10000";
-        doc.body.appendChild(overlayDiv);
-        
-        overlayDiv.innerHTML = 
-            '<div style="position: relative; width: 100%; height: 100%;">' +
-                '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; -moz-opacity: 0.5; background-color: black"></div>' +
-                '<div style="position: absolute; top: 70px; left: 70px; right: 70px; bottom: 70px;">' +
-                    '<iframe style="width: 100%; height: 100%;"></iframe>' +
-                '</div>' +
-            '</div>';
-        overlayDiv.firstChild.firstChild.addEventListener('click', function(evt) { self._hideLightboxOverlay(); }, true);
-    }
-    
-    overlayDiv.getElementsByTagName("iframe")[0].src = "http://freebase.com/view" + itemIDs[0];
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._hideLightboxOverlay = function() {
-    var doc = this._getDocument();
-    var overlayDiv = doc.getElementById(Companion.PageSession.ActiveAugmentingStage._overlayID);
-    if (overlayDiv) {
-        overlayDiv.parentNode.removeChild(overlayDiv);
-    }
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(fbids) {
