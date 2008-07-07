@@ -10,8 +10,30 @@ a {
     cursor: pointer;
 }
 
+#view-summary-container-outer {
+	background: #888;
+	color: white;
+}
+
+#view-summary-container {
+	padding: 	10px;
+}
+
+.view-summary-count {
+	font-size: 200%;
+	font-weight: bold;
+}
+
+.view-summary-original-count {
+	font-size: 150%;
+}
+
+#view-container {
+	padding: 	 10px;
+}
+
 .view {
-    margin:      1em;
+    margin:      10px;
     font-family: "Lucida Grande", Tahoma, Verdana, Arial, Helvetica, sans-serif;
     font-size:   10pt;
     float:       left;

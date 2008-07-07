@@ -21,6 +21,8 @@ function onLoad() {
         for (var i = 0; i < freebaseIds.length; i++) {
             addFreebaseItemView(freebaseIds[i]);
         }
+		
+		showSummary(viewRecords.length, viewRecords.length);
     } catch (e) {
         alert(e);
     }
@@ -147,6 +149,42 @@ function processErrorResult(viewRecord) {
     viewRecord.viewDiv.appendChild(div);
 };
 
-function foo(s) {
-	alert(s);
+function highlight(identities) {
+	var restrictedCount = 0;
+	for (var i = 0; i < viewRecords.length; i++) {
+		var viewRecord = viewRecords[i];
+		if (identities.contains(viewRecord.freebaseId)) {
+			viewRecord.viewDiv.style.display = "block";
+			restrictedCount++;
+		} else {
+			viewRecord.viewDiv.style.display = "none";
+		}
+	}
+	showSummary(viewRecords.length, restrictedCount);
+};
+
+function showSummary(totalCount, restrictedCount) {
+	var div = document.getElementById("view-summary-container");
+	div.innerHTML = "";
+	
+	if (restrictedCount == totalCount) {
+		var span1 = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+		span1.innerHTML = restrictedCount + " topics";
+		span1.className = "view-summary-count";
+		div.appendChild(span1);
+	} else {
+		var span1 = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+		span1.innerHTML = restrictedCount + " topics";
+		span1.className = "view-summary-count";
+		div.appendChild(span1);
+		
+		div.appendChild(document.createTextNode(" filtered from "));
+
+		var span2 = document.createElementNS("http://www.w3.org/1999/xhtml", "span");
+		span2.innerHTML = totalCount;
+		span2.className = "view-summary-original-count";
+		div.appendChild(span2);
+
+		div.appendChild(document.createTextNode(" originally"));
+	}
 };
