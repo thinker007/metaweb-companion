@@ -71,7 +71,7 @@ FreebaseService.getAllRelationships = function(ids, onDone, onStatus, onError) {
 			onDone(results);
 		} else {
 			var start = state.index;
-			var end = Math.min(start + 10, ids.length);
+			var end = Math.min(start + 5, ids.length);
 			
 			state.index = end;
 			
@@ -88,58 +88,16 @@ FreebaseService.getAllRelationships = function(ids, onDone, onStatus, onError) {
 
 FreebaseService._getAllRelationshipsInBatch = function(ids, start, end, onDone, onError) {
 	var ids2 = ids.slice(start, end);
-    var forwardQuery = [
-		{
-		    "master_property" : null,
-		    "reverse" : null,
-		    "source" : {
-		      "id" : null,
-		      "id|=" : ids2
-		    },
-		    "target" : [
-		      {
-		        "id" : null,
-		        "name" : null
-		      }
-		    ],
-		    "type" : "/type/link",
-			"limit" : 1000
-		}
-	];
-	var backwardQuery = [
-	    {
-            "master_property" : null,
-            "reverse" : null,
-            "target" : {
-              "id" : null,
-              "id|=" : ids2
-            },
-            "source" : [
-              {
-                "id" : null,
-                "name" : null
-              }
-            ],
-            "type" : "/type/link",
-			"limit" : 1000
-        }
-    ];
-	var queries = {
-	   "q1": { "query": forwardQuery },
-	   "q2": { "query": backwardQuery }
-	};
-
-    var url = 'http://freebase.com/api/service/mqlread?';
-    var body = 'queries=' + encodeURIComponent(jsonize(queries));
-    
+	
+	var url = Companion.getHelperURL() + "fact-finder";
+	Companion.log("Using fact finder service at " + url);
+	
     var request = new XMLHttpRequest();
     request.open("POST", url, true);
-    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    request.setRequestHeader("Content-Length", body.length);
     request.onreadystatechange = function() { 
 		FreebaseService._getAllRelationshipsStateChangeCallback(request, onDone, onError);
     };
-    request.send(body);
+    request.send(jsonize({ "ids" : ids2 }));
 };
 
 FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDone, onError) {
@@ -158,8 +116,7 @@ FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDo
 		onError(request);
     } else {
 		var o = eval("(" + request.responseText + ")");
-		var compoundResults = o.q1.result.concat(o.q2.result);
-		onDone(compoundResults);
+		onDone(o.entries);
 	}
 };
 
