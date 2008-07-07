@@ -38,7 +38,31 @@ Companion.PageSession.ActivatingStage.prototype.dispose = function() {
 
 Companion.PageSession.ActivatingStage.prototype.kickstart = function() {
 	this._cancelProcess();
-    this._doEntityIdentification();
+	
+	var doc = this._getDocument();
+	if (Companion.isDatawebDocument(doc)) {
+		var identityModel = new Companion.IdentityModel();
+		
+		var params = doc.location.href.substr(doc.location.href.indexOf("?") + 1).split("&");
+		for (var i = 0; i < params.length; i++) {
+			var pair = params[i].split("=");
+			var name = pair[0];
+			var value = pair.length > 1 ? decodeURIComponent(pair[1]) : null;
+			if (name == "fbids") {
+				var freebaseIDs = value.split(";");
+				
+				for (var j = 0; j < freebaseIDs.length; j++) {
+					var freebaseID = freebaseIDs[j];
+					identityModel.addEntityWithFreebaseID(freebaseID, freebaseID, []);
+				}
+				break;
+			}
+		}
+		
+		this._doDataRetrieval(identityModel);
+	} else {
+		this._doEntityIdentification();
+	}
 };
 
 Companion.PageSession.ActivatingStage.prototype._cancelProcess = function() {

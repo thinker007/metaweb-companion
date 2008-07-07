@@ -74,3 +74,12 @@ Companion.toggleSidepane = function() {
 		setAttribute("checked", !Companion.sidepaneHidden);
 };
 
+Companion.isDatawebDocument = function(doc) {
+	return doc.location.href.indexOf("dataweb:") == 0 ||
+		doc.location.href.indexOf("chrome://companion/content/dataweb-commands/") == 0;
+};
+
+Companion.isMultiwebDocument = function(doc) {
+	return doc.location.href.indexOf("multiweb:") == 0 ||
+		doc.location.href.indexOf("chrome://companion/content/multiweb-commands/") == 0;
+};

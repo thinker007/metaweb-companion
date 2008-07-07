@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="styles/browse.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/content/multiweb-commands/styles/browse.css" type="text/css"?>
 <!-- <!DOCTYPE overlay SYSTEM "chrome://companion/locale/companion.dtd"> -->
 
 <page
@@ -8,7 +8,7 @@
 	title="Multiweb Browsing"
 	onload="onLoad();">
 	
-	<script src="scripts/browse.js" />
+	<script src="chrome://companion/content/multiweb-commands/scripts/browse.js" />
 	
 	<vbox flex="1">
 		<deck id="content-stack" flex="1">
