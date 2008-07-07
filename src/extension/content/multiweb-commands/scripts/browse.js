@@ -272,9 +272,13 @@ function addPin(docIndex, elmt) {
 	var thumbnailRecord = thumbnailRecords[docIndex];
 	if ("scale" in thumbnailRecord) {
 		try {
+			var win = thumbnailRecord.browser.contentDocument.defaultView.wrappedJSObject;
+			var scrollTop = win.scrollY;
+			var scrollLeft = win.scrollX;
+	
 			var rect = elmt.getClientRects().item(0);
-			var scaledYOffset = Math.ceil(thumbnailRecord.scale * (rect.top + rect.bottom) / 2);
-			var scaledXOffset = Math.ceil(thumbnailRecord.scale * (rect.left + rect.right) / 2);
+			var scaledYOffset = Math.ceil(thumbnailRecord.scale * (scrollTop + (rect.top + rect.bottom) / 2));
+			var scaledXOffset = Math.ceil(thumbnailRecord.scale * (scrollLeft + (rect.left + rect.right) / 2));
 			
 			var canvasBounds = thumbnailRecord.canvas.getBoundingClientRect();
 			var multiviewOverlayBounds = getMultiviewOverlay().getBoundingClientRect();
