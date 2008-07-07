@@ -112,7 +112,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onSelectFacetList = funct
     }
 };
 
-Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {
+Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {try {
 	this._highlightContent();
 
     var database = this._pageSession.database;
@@ -192,7 +192,7 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
     if (this._dom.facetList.selectedIndex == -1 && this._facets.length > 0) {
         this._dom.facetList.selectedIndex = 0;
     }
-    this._dom.facetOuterDeck.selectedIndex = (this._facets.length > 0) ? 1 : 0;
+    this._dom.facetOuterDeck.selectedIndex = (this._facets.length > 0) ? 1 : 0;} catch (e) {Companion.log(e);}
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {

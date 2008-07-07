@@ -17,10 +17,11 @@ Companion.DatawebContentHighlighter.prototype.setDocument = function(doc) {
 Companion.DatawebContentHighlighter.prototype.highlight = function(identities) {
 	if (this._doc != null) {
 		try {
-			//Companion.log(this._doc.getElementById("the-browser").wrappedJSObject.contentWindow);
-			//var node = new XPCNativeWrapper(this._doc.getElementById("the-browser").wrappedJSObject, "nodeType", "parentNode", "childNodes", "firstChild");
-			//Companion.inspect(this._doc.wrappedJSObject);
-			this._doc.wrappedJSObject.defaultView.wrappedJSObject["foo"]("abc"); 
+			this._getDatawebPageHook("highlight")(identities);
 		} catch (e) { Companion.log(e); }
 	}
+};
+
+Companion.DatawebContentHighlighter.prototype._getDatawebPageHook = function(name) {
+	return this._doc.wrappedJSObject.defaultView.wrappedJSObject[name];
 };
