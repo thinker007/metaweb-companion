@@ -25,14 +25,21 @@ function onLoad() {
 	if (thumbnailRecords.length > 0) {
 		window.setTimeout(drawAllThumbnails, 1000);
 	}
+	
+	document.getElementById("multiview-overlay").addEventListener('mousemove', onMultiviewOverlayMouseMove, true);
 }
 
 function addPage(url) {
 	var contentStack = document.getElementById("content-stack");
-	var multiviewScrollbox = document.getElementById("multiview-scrollbox");
+	var multiviewScrollbox = document.getElementById("multiview-scrollbox-inner");
 	
-	var browser = document.createElement("browser");
-	contentStack.appendChild(browser);
+	var loader = document.getElementById("loader-template").cloneNode(true);
+	loader.hidden = false;
+	contentStack.appendChild(loader);
+	
+	loader.childNodes[0].childNodes[0].value = url;
+	
+	var browser = loader.childNodes[1];
 	browser.setAttribute("src", url);
 	// TODO: We still don't know how to prevent frame-busting.
 	
@@ -48,6 +55,7 @@ function addPage(url) {
 	
 	thumbnailRecords.push({
 		url: 		url,
+		loader:		loader,
 		browser: 	browser,
 		canvas:		box.childNodes[1].childNodes[0]
 	});
@@ -66,12 +74,23 @@ function drawAllThumbnails() {
 		alert(e);
 	}
 	
-	window.setInterval(redrawNextThumbnail, 500);
+	window.setInterval(redrawNextThumbnail, 1000);
 }
 
 function redrawNextThumbnail() {
-	redrawThumbnail(thumbnailRecords[toDrawNext]);
-	toDrawNext = (toDrawNext + 1) % thumbnailRecords.length;
+	var containingRect = document.getElementById("multiview-scrollbox").getBoundingClientRect();
+	while (toDrawNext < thumbnailRecords.length) {
+		var thumbnailRecord = thumbnailRecords[toDrawNext];
+		toDrawNext++;
+		
+		var rect = thumbnailRecord.loader.getBoundingClientRect();
+		if ((rect.left >= containingRect.left && rect.left < containingRect.right) ||
+			(rect.right >= containingRect.left && rect.right < containingRect.right)) {
+			redrawThumbnail(thumbnailRecord);
+			break;
+		}
+	}
+	toDrawNext = toDrawNext % thumbnailRecords.length;
 }
 
 function redrawThumbnail(record) {
@@ -82,7 +101,10 @@ function redrawThumbnail(record) {
 		
 		var canvas = record.canvas;
 		var canvasWidth = canvas.offsetWidth;
-		var canvasHeight = Math.floor(docHeight * canvasWidth / docWidth);
+		var scale = canvasWidth / docWidth;
+		var canvasHeight = Math.floor(docHeight * scale);
+		
+		record.scale = scale;
 		
 		canvas.style.height = canvasHeight + "px";
 		canvas.setAttribute("width", docWidth);
@@ -93,4 +115,60 @@ function redrawThumbnail(record) {
 		ctx.drawWindow(record.browser.contentWindow, 0, 0, docWidth, docHeight, "rgba(255, 255, 255, 255)");
 		ctx.restore();
 	} catch (e) {}
+}
+
+function onMultiviewOverlayMouseMove(event) {
+	var magnifier = getMagnifierElement();
+				
+	var clientX = event.clientX;
+	var clientY = event.clientY;
+	for (var i = 0; i < thumbnailRecords.length; i++) {
+		var thumbnailRecord = thumbnailRecords[i];
+		var clientBounds = thumbnailRecord.canvas.getBoundingClientRect();
+		if (clientX >= clientBounds.left && clientX < clientBounds.right &&
+			clientY >= clientBounds.top && clientY < clientBounds.bottom) {
+			
+			if ("scale" in thumbnailRecord) {
+				var magnifierCanvas = magnifier.firstChild;
+				var magnifierCanvasWidth = magnifierCanvas.offsetWidth;
+				var magnifierCanvasHeight = magnifierCanvas.offsetHeight;
+				
+				var docX = Math.floor((clientX - clientBounds.left) / thumbnailRecord.scale - magnifierCanvasWidth / 2);
+				var docY = Math.floor((clientY - clientBounds.top) / thumbnailRecord.scale - magnifierCanvasHeight / 2);
+				
+				var ctx = magnifierCanvas.getContext("2d");
+				ctx.save();
+				ctx.drawWindow(thumbnailRecord.browser.contentWindow, docX, docY, magnifierCanvasWidth, magnifierCanvasHeight, "rgba(255, 255, 255, 255)");
+				ctx.restore();
+				
+				var multiviewOverlay = getMultiviewOverlay();
+				var overlayClientBounds = multiviewOverlay.getBoundingClientRect();
+				
+				magnifier.style.display = "block";
+				magnifier.style.left = (clientX - overlayClientBounds.left + 10) + "px";
+				magnifier.style.top = (clientY - overlayClientBounds.top + 10) + "px";
+				return;
+			}
+		}
+	}
+	magnifier.style.display = "none";
+}
+
+function getMagnifierElement() {
+	var elmt = document.getElementById("magnifier");
+	if (elmt == null) {
+		elmt = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		elmt.id = "magnifier";
+		elmt.style.position = "absolute";
+		elmt.style.border = "1px solid #aaa";
+		
+		elmt.innerHTML = '<canvas style="width: 300px; height: 100px; -moz-border-radius: 20px;" width="300" height="100"></canvas>';
+		
+		getMultiviewOverlay().appendChild(elmt);
+	}
+	return elmt;
+}
+
+function getMultiviewOverlay() {
+	return document.getElementById("multiview-overlay");
 }
