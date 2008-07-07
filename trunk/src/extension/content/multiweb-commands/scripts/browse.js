@@ -252,3 +252,13 @@ function previousDoc() {
 function nextDoc() {
 	switchToDoc(currentlyViewed + 1);
 }
+
+function getDocuments() {
+	var docs = [];
+	for (var i = 0; i < thumbnailRecords.length; i++) {
+		var thumbnailRecord = thumbnailRecords[i];
+		var doc = thumbnailRecord.browser.contentDocument;
+		docs.push(doc);
+	}
+	return docs;
+}

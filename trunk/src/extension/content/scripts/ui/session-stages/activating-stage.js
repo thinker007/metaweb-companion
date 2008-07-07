@@ -41,27 +41,11 @@ Companion.PageSession.ActivatingStage.prototype.kickstart = function() {
 	
 	var doc = this._getDocument();
 	if (Companion.isDatawebDocument(doc)) {
-		var identityModel = new Companion.IdentityModel();
-		
-		var params = doc.location.href.substr(doc.location.href.indexOf("?") + 1).split("&");
-		for (var i = 0; i < params.length; i++) {
-			var pair = params[i].split("=");
-			var name = pair[0];
-			var value = pair.length > 1 ? decodeURIComponent(pair[1]) : null;
-			if (name == "fbids") {
-				var freebaseIDs = value.split(";");
-				
-				for (var j = 0; j < freebaseIDs.length; j++) {
-					var freebaseID = freebaseIDs[j];
-					identityModel.addEntityWithFreebaseID(freebaseID, freebaseID, []);
-				}
-				break;
-			}
-		}
-		
-		this._doDataRetrieval(identityModel);
+		this._handleDatawebPage(doc);
+	} else if (Companion.isMultiwebDocument(doc)) {
+		this._handleMultiwebPage(doc);
 	} else {
-		this._doEntityIdentification();
+		this._handleStandardWebPage(doc);
 	}
 };
 
@@ -93,17 +77,72 @@ Companion.PageSession.ActivatingStage.prototype._createErrorHandler = function()
 	};
 };
 
-Companion.PageSession.ActivatingStage.prototype._doEntityIdentification = function() {
+Companion.PageSession.ActivatingStage.prototype._handleStandardWebPage = function(doc) {
 	var self = this;
-	
 	var identityModel = new Companion.IdentityModel();
-	var onDone = function() {
-		self._process = null;
+	this._identifyEntitiesInDocument(identityModel, doc, function() {
 		self._doDataRetrieval(identityModel);
+	});
+};
+
+Companion.PageSession.ActivatingStage.prototype._handleDatawebPage = function(doc) {
+	var identityModel = new Companion.IdentityModel();
+	
+	var params = doc.location.href.substr(doc.location.href.indexOf("?") + 1).split("&");
+	for (var i = 0; i < params.length; i++) {
+		var pair = params[i].split("=");
+		var name = pair[0];
+		var value = pair.length > 1 ? decodeURIComponent(pair[1]) : null;
+		if (name == "fbids") {
+			var freebaseIDs = value.split(";");
+			
+			for (var j = 0; j < freebaseIDs.length; j++) {
+				var freebaseID = freebaseIDs[j];
+				identityModel.addEntityWithFreebaseID(freebaseID, freebaseID, []);
+			}
+			break;
+		}
+	}
+	
+	this._doDataRetrieval(identityModel);
+};
+
+Companion.PageSession.ActivatingStage.prototype._handleMultiwebPage = function(doc) {
+	var self = this;
+	var identityModel = new Companion.IdentityModel();
+	
+	var docs = doc.wrappedJSObject.defaultView.wrappedJSObject["getDocuments"]();
+	var index = 0;
+	var doNext = function() {
+		if (index < docs.length) {
+			try {
+				var doc2 = docs[index++];
+				
+				if (self._dom != null) {
+					var s = "Processing " + doc2.location.href + " ...";
+					self._dom.logListbox.appendItem(s, s); 
+				}
+				
+				self._identifyEntitiesInDocument(identityModel, doc2, doNext);
+			} catch (e) {
+				Companion.log(e);
+			}
+		} else {
+			self._doDataRetrieval(identityModel);
+		};
+	};
+	doNext();
+};
+
+Companion.PageSession.ActivatingStage.prototype._identifyEntitiesInDocument = function(identityModel, doc, onDone) {
+	var self = this;
+	var onDone2 = function() {
+		self._process = null;
+		onDone();
 	};
 	
-	this._process = new Companion.EntityIdentificationProcess(this._getDocument(), identityModel, this._createProcessUI(), {});
-	this._process.start(onDone, this._createErrorHandler());
+	this._process = new Companion.EntityIdentificationProcess(doc, identityModel, this._createProcessUI(), {});
+	this._process.start(onDone2, this._createErrorHandler());
 };
 
 Companion.PageSession.ActivatingStage.prototype._doDataRetrieval = function(identityModel) {

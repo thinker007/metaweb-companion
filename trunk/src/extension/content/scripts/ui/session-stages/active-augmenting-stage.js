@@ -206,6 +206,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = functi
 		
 		if (Companion.isDatawebDocument(doc)) {
 			this._contentHighlighter = new Companion.DatawebContentHighlighter(focusURLGenerator);
+		} else if (Companion.isMultiwebDocument(doc)) {
+			this._contentHighlighter = new Companion.MultiwebContentHighlighter(focusURLGenerator);
 		} else {
 			this._contentHighlighter = new Companion.SinglePageContentHighlighter(
 				this._pageSession.identityModel, focusURLGenerator);
