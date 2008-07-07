@@ -23,6 +23,7 @@
 	<script src="scripts/ui/highlighters/highlighter-util.js" />
 	<script src="scripts/ui/highlighters/single-page-content-highlighter.js" />
 	<script src="scripts/ui/highlighters/dataweb-content-highlighter.js" />
+	<script src="scripts/ui/highlighters/multiweb-content-highlighter.js" />
 	
 	<script src="scripts/util/string.js" />
 	<script src="scripts/util/date.js" />
