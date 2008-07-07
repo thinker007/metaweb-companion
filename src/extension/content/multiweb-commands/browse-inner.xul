@@ -23,14 +23,14 @@
 		</deck>
 		<deck id="control-stack">
 			<hbox>
-				<spacer flex="1" /><label value="Click to Zoom In." /><spacer flex="1" />
+				<spacer flex="1" /><label value="Click to Zoom In." class="white-label" /><spacer flex="1" />
 			</hbox>
 			<hbox>
 				<spacer flex="5" />
-				<button label="Previous" />
-				<button label="Next" />
+				<button label="Previous" oncommand="previousDoc();" id="previous-doc-button" />
+				<button label="Next" oncommand="nextDoc();" id="next-doc-button" />
 				<spacer flex="1" />
-				<button label="Zoom Out" />
+				<button label="Zoom Out" oncommand="zoomOut();" />
 				<spacer flex="5" />
 			</hbox>
 		</deck>
@@ -38,7 +38,7 @@
 	
 	<vbox id="loader-template" hidden="true">
 		<hbox class="loader-header">
-			<label flex="1" />
+			<label flex="1" class="white-label" />
 			<spacer />
 			<button label="Copy URL" />
 			<button label="Open by Itself" />

@@ -3,7 +3,6 @@
 page {
 	font-family: 	Arial;
 	font-size:		10pt;
-	background-color: #444;
 }
 
 #content-stack {
@@ -11,9 +10,7 @@ page {
 
 #control-stack {
 	padding: 5px;
-}
-#control-stack label {
-	color: white;
+	background-color: #444;
 }
 
 #multiview-scrollbox {
@@ -26,9 +23,10 @@ page {
 }
 
 .loader-header {
-	padding: 5px;
+	padding: 			5px;
+	background-color: 	#444;
 }
 
-.loader-header > label {
+.white-label {
 	color: white;
 }
