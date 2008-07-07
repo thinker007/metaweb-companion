@@ -262,3 +262,45 @@ function getDocuments() {
 	}
 	return docs;
 }
+
+function clearPins() {
+	document.getElementById("multiview-pin-shadow-overlay").innerHTML = "";
+	document.getElementById("multiview-pin-overlay").innerHTML = "";
+}
+
+function addPin(docIndex, elmt) {
+	var thumbnailRecord = thumbnailRecords[docIndex];
+	if ("scale" in thumbnailRecord) {
+		try {
+			var rect = elmt.getClientRects().item(0);
+			var scaledYOffset = Math.ceil(thumbnailRecord.scale * (rect.top + rect.bottom) / 2);
+			var scaledXOffset = Math.ceil(thumbnailRecord.scale * (rect.left + rect.right) / 2);
+			
+			var canvasBounds = thumbnailRecord.canvas.getBoundingClientRect();
+			var multiviewOverlayBounds = getMultiviewOverlay().getBoundingClientRect();
+			
+			var x = canvasBounds.left - multiviewOverlayBounds.left + scaledXOffset;
+			var y = canvasBounds.top - multiviewOverlayBounds.top + scaledYOffset;
+			
+			addImage(
+				document.getElementById("multiview-pin-shadow-overlay"), 
+				"chrome://companion/skin/images/pin-shadow.png",
+				x - 3, y - 15);
+				
+			addImage(
+				document.getElementById("multiview-pin-overlay"), 
+				"chrome://companion/skin/images/pin.png",
+				x - 3, y - 15);
+		} catch (e) {
+		}
+	}
+}
+
+function addImage(parent, url, x, y) {
+	var img = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
+	img.src = url;
+	img.style.position = "absolute";
+	img.style.left = x + "px";
+	img.style.top = y + "px";
+	parent.appendChild(img);
+}
