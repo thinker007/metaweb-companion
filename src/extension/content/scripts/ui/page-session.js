@@ -89,6 +89,6 @@ Companion.PageSession.prototype.augment = function(identityModel, freebaseModel)
 	this.identityModel = identityModel;
 	this.freebaseModel = freebaseModel;
     this.collection = Companion.Collection.createGivenCollection("default", this.database, identityModel.getAllFreebaseIDs());
-	
+
     this._switchStage(Companion.PageSession.STAGE_ACTIVE_AUGMENTING); 
 };

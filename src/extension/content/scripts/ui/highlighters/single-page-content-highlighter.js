@@ -12,6 +12,7 @@ Companion.SinglePageContentHighlighter.prototype.dispose = function() {
 		this._doc = null;
 	}
 	this._identityModel = null;
+	this._focusURLGenerator = null;
 };
 
 Companion.SinglePageContentHighlighter.prototype.setDocument = function(doc) {

@@ -146,3 +146,7 @@ function processErrorResult(viewRecord) {
     
     viewRecord.viewDiv.appendChild(div);
 };
+
+function foo(s) {
+	alert(s);
+};

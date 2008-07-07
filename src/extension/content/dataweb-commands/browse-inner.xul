@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="styles/browse.css" type="text/css"?>
-<?xml-stylesheet href="styles/browse-html.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/content/dataweb-commands/styles/browse.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/content/dataweb-commands/styles/browse-html.css" type="text/css"?>
 <!-- <!DOCTYPE overlay SYSTEM "chrome://companion/locale/companion.dtd"> -->
 
 <page
@@ -12,7 +12,7 @@
     >
     
     <script src="chrome://companion/content/scripts/util/jsonize.js" />
-    <script src="scripts/browse.js" />
+    <script src="chrome://companion/content/dataweb-commands/scripts/browse.js" />
     
     <scrollbox orient="vertical" style="overflow: auto" flex="1"><html:div id="view-container"></html:div></scrollbox>
 </page>

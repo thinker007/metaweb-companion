@@ -200,14 +200,16 @@ Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() 
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = function() {
+	var doc = this._getDocument();
 	if (this._contentHighlighter == null) {
-		var self = this;
-		this._contentHighlighter = new Companion.SinglePageContentHighlighter(
-			this._pageSession.identityModel,
-			function(itemIDs) {
-				return "http://freebase.com/view" + itemIDs[0];
-			}
-		);
+		var focusURLGenerator = function(itemIDs) { return "http://freebase.com/view" + itemIDs[0]; };
+		
+		if (Companion.isDatawebDocument(doc)) {
+			this._contentHighlighter = new Companion.DatawebContentHighlighter(focusURLGenerator);
+		} else {
+			this._contentHighlighter = new Companion.SinglePageContentHighlighter(
+				this._pageSession.identityModel, focusURLGenerator);
+		}
 	}
 	this._contentHighlighter.setDocument(this._getDocument());
 	this._contentHighlighter.highlight(this._pageSession.collection.getRestrictedItems());
@@ -245,6 +247,9 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onClickResetAllLink = fun
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(fbids) {
-	var url = "dataweb:browse?fbids=" + encodeURIComponent(fbids.join(";"));
+	var url = 
+		//"dataweb:browse" +
+		"chrome://companion/content/dataweb-commands/browse-inner.xul" +
+		"?fbids=" + encodeURIComponent(fbids.join(";"));
 	this._pageSession.windowSession.browser.setAttribute("src", url);
 };
