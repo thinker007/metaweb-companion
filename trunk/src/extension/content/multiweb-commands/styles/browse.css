@@ -3,17 +3,32 @@
 page {
 	font-family: 	Arial;
 	font-size:		10pt;
-}
-
-#content-stack {
 	background-color: #444;
 }
 
-#control-container {
+#content-stack {
+}
+
+#control-stack {
 	padding: 5px;
+}
+#control-stack label {
+	color: white;
+}
+
+#multiview-scrollbox {
+	background-color: #666;
 }
 
 .thumbnail-container {
-	padding: 50px;
-	width: 500px;
+	padding: 	50px;
+	width: 		500px;
+}
+
+.loader-header {
+	padding: 5px;
+}
+
+.loader-header > label {
+	color: white;
 }
