@@ -14,6 +14,16 @@ Companion.inspect = function(o) {
     window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=800,height=600,all", o);
 };
 
+Companion.getHelperURL = function() {
+    var url = "http://localhost:8192/";
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+	try {
+		url = prefs.getCharPref("metaweb.companion.helper");
+	} catch (e) {
+	}
+	return url;
+};
+
 Companion.cancelEvent = function(evt) {
     evt.returnValue = false;
     evt.cancelBubble = true;

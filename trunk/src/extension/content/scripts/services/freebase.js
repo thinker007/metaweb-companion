@@ -7,12 +7,7 @@ FreebaseService.reconcile = function(entries, onDone) {
         a.push({ name: entry.name, freebaseTypes: entry.freebaseTypes });
     }
     
-    var url = "http://localhost:8192/reconciler/";
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
-	try {
-		url = prefs.getCharPref("metaweb.companion.reconcilerService");
-	} catch (e) {
-	}
+	var url = Companion.getHelperURL() + "reconciler";
 	Companion.log("Using reconciler service at " + url);
 
     var request = new XMLHttpRequest();
