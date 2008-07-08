@@ -287,10 +287,13 @@ Companion.ListFacet.prototype._constructBody = function() {
             };
         }
     }
+	/*
     this._dom.setSlidingText(String.substitute(
         Companion.strings.getString("companion.facet.slidingLinkLabel"),
         [ "these " + this._nonMissingEntriesCount + " " + this._settings.expectedTypeLabel ]
     ));
+	*/
+    this._dom.setSlidingText(this._nonMissingEntriesCount + " " + this._settings.expectedTypeLabel);
     this._dom.setSelectionCount(this._valueSet.size() + (this._selectMissing ? 1 : 0));
     
     this._constructingBody = false;

@@ -14,6 +14,9 @@ Companion.FacetUtilities.createFacetSplitter = function() {
 };
 
 Companion.FacetUtilities.constructFacetFrame = function(parentVbox, facetLabel, hasFilter) {
+    var header = document.getElementById("companion-facet-header").cloneNode(true);
+    parentVbox.appendChild(header);
+	
     if (hasFilter) {
         var textbox = document.getElementById("companion-facet-quickFilter").cloneNode(true);
         parentVbox.appendChild(textbox);
@@ -25,15 +28,14 @@ Companion.FacetUtilities.constructFacetFrame = function(parentVbox, facetLabel, 
     var footer = document.getElementById("companion-facet-footer").cloneNode(true);
     parentVbox.appendChild(footer);
     
-    var actionListElements = footer.childNodes[0].getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "li");
     var r = {
-        resetLink: 	            actionListElements[0],
-        fillInMissingDataLink:  actionListElements[1],
-        slidingLink:            actionListElements[2],
+        resetLink: 	            header.childNodes[0].childNodes[0],
+        slidingLink:            header.childNodes[1].childNodes[0],
+        fillInMissingDataLink:  footer.childNodes[0],
         
         valuesContainer:  valuesContainer,
         setSelectionCount: function(count) {
-            r.resetLink.style.display = (count > 0) ? "list-item" : "none";
+            r.resetLink.style.display = (count > 0) ? "block" : "none";
         },
         setSlidingText: function(s) {
             r.slidingLink.firstChild.innerHTML = s;
