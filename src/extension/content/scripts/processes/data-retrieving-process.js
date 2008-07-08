@@ -39,43 +39,13 @@ Companion.DataRetrievingProcess.prototype._onDoneGetAllRelationships = function(
     this._ui.debugLog("Retrieving schemas from Freebase...");
 	
 	var self = this;
-	FreebaseService.getTypeProperties(
-		this._database.getAllTypes(),
-		function(o) { self._onDoneGetTypeProperties(o, ids); },
+	var freebaseModel = this._settings.freebaseModel;
+	FreebaseService.getSchema(
+		this._database,
+		freebaseModel,
+		function() { self._onDone(); },
 		function (s) { self._notifyError(s); }
 	);
-};
-
-Companion.DataRetrievingProcess.prototype._onDoneGetTypeProperties = function(typePropertyEntries, ids) {
-    var database = this._database;
-	var freebaseModel = this._settings.freebaseModel;
-    
-    for (var i = 0; i < typePropertyEntries.length; i++) {
-        var typePropertyEntry = typePropertyEntries[i];
-        var propertyEntries = typePropertyEntry["/type/type/properties"];
-        var propertyIDs = [];
-        
-        for (var j = 0; j < propertyEntries.length; j++) {
-            var propertyEntry = propertyEntries[j];
-            propertyIDs.push(propertyEntry.id);
-            
-            var propertyRecord = database.getProperty(propertyEntry.id);
-            if (propertyRecord != null) {
-                propertyRecord._label = propertyRecord._pluralLabel = propertyEntry.name;
-                
-                if ("expected_type" in propertyEntry) {
-                    var expectedTypes = propertyEntry["expected_type"];
-                    if (expectedTypes.length > 0) {
-                        propertyRecord._expectedTypeLabel = expectedTypes[0].name;
-                    }
-                }
-            }
-			
-			freebaseModel.addPropertyToType(typePropertyEntry.id, propertyEntry.id);
-        }
-    }
-	
-	this._onDone();
 };
 
 Companion.DataRetrievingProcess.prototype._notifyError = function(s) {

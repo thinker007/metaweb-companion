@@ -132,8 +132,8 @@ Companion.Database._Impl.prototype.loadFreebaseItems = function(relationEntries)
 			var tID = getID(reverse ? entry.source : entry.target);
 			
 			var theTarget = ("length" in entry.target) ? entry.target[0] : entry.target;
-			if ("name" in theTarget) {
-				indexTriple(theTarget.id, "label", theTarget.name);
+			if ("name" in theTarget && theTarget.name.length > 0) {
+				indexTriple(theTarget.id, "label", theTarget.name[0].value);
 			}
 			
 			if (!this._items.contains(sID)) {
@@ -326,6 +326,11 @@ Companion.Database._Impl.prototype.getType = function(typeID) {
 
 Companion.Database._Impl.prototype.getProperty = function(propertyID) {
     return propertyID in this._properties ? this._properties[propertyID] : null;
+};
+
+Companion.Database._Impl.prototype.getPropertyForced = function(propertyID) {
+	this._ensurePropertyExists(propertyID, "");
+	return this._properties[propertyID];
 };
 
 /**
