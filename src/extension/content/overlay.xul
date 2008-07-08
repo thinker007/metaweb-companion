@@ -121,10 +121,19 @@
 	            </vbox>
 	            
 	            <!-- active-augmenting stage -->
-	            <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1">
+	            <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1"
+					xmlns:html="http://www.w3.org/1999/xhtml">
 	                <hbox>
-	                    <spacer flex="1" />
-	                    <button label="Re-Analyze" />
+						<vbox flex="1">
+							<html:ul>
+								<html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.browseTopicsAlone.label;</html:a></html:li>
+								<html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.findNews.label;</html:a></html:li>
+							</html:ul>
+						</vbox>
+						<vbox>
+							<button label="Re-Analyze" />
+							<spacer flex="1" />
+						</vbox>
 	                </hbox>
 					<separator class="groove" />
 					

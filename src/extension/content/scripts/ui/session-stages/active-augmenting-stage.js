@@ -22,16 +22,23 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     this._page = document.getElementById("companion-pageSession-activeAugmentingStagePage").cloneNode(true);
     
     this._dom = {};
-    this._dom.analyzeButton = this._page.childNodes[0].childNodes[1];
+	
+	var linkList = this._page.childNodes[0].childNodes[0].childNodes[0].getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "li");
+	this._dom.browseTopicsAloneLink = linkList[0].firstChild;
+	this._dom.browseTopicsAloneLink.addEventListener('click', function(event) { self._onClickBrowseTopicsAloneLink(); }, true);
+	this._dom.findMoreNewsLink = linkList[1].firstChild;
+	this._dom.findMoreNewsLink.addEventListener('click', function(event) { self._onClickFindMoreNewsLink(); }, true);
+    
+    this._dom.analyzeButton = this._page.childNodes[0].childNodes[1].childNodes[0];
     this._dom.analyzeButton.addEventListener('command', function(event) { self._pageSession.analyze(); }, true);
     
-    this._dom.typeFacetContainer = this._page.getElementsByTagName("vbox")[0];
+    this._dom.typeFacetContainer = this._page.getElementsByTagName("vbox")[2];
     
     this._dom.facetOuterDeck = this._page.lastChild;
     
     this._dom.resetAllLink = this._dom.facetOuterDeck.childNodes[1].childNodes[0].childNodes[1];//.childNodes[0];
     this._dom.resetAllLink.addEventListener('click', function(event) { self._onClickResetAllLink(); }, true);
-    
+	
     this._dom.facetList = this._dom.facetOuterDeck.childNodes[1].childNodes[1].childNodes[0];
     this._dom.facetList.addEventListener('select', function(event) { self._onSelectFacetList(); }, true);
     this._dom.facetDeck = this._dom.facetOuterDeck.childNodes[1].childNodes[1].childNodes[2];
@@ -299,3 +306,17 @@ Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(
 		"?fbids=" + encodeURIComponent(fbids.join(";"));
 	this._pageSession.windowSession.browser.setAttribute("src", url);
 };
+
+Companion.PageSession.ActiveAugmentingStage.prototype._onClickBrowseTopicsAloneLink = function() {
+    var collection = this._pageSession.collection;
+	var fbids = collection.getRestrictedItems().toArray();
+	var url = 
+		//"dataweb:browse" +
+		"chrome://companion/content/dataweb-commands/browse-inner.xul" +
+		"?fbids=" + encodeURIComponent(fbids.join(";"));
+	this._pageSession.windowSession.browser.setAttribute("src", url);
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._onClickFindMoreNewsLink = function() {
+};
+
