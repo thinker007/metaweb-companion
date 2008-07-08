@@ -5,3 +5,6 @@
 
 <!ENTITY companion.pageSession.activeAugmentingStagePage.filterByTypes.label "Filter by Types">
 <!ENTITY companion.pageSession.activeAugmentingStagePage.filterByProperties.label "Filter by Properties">
+
+<!ENTITY companion.pageSession.activeAugmentingStagePage.browseTopicsAlone.label "Browse these topics by themselves">
+<!ENTITY companion.pageSession.activeAugmentingStagePage.findNews.label "Find more news about these topics">
