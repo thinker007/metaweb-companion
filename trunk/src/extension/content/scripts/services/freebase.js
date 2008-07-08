@@ -120,13 +120,15 @@ FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDo
 	}
 };
 
-FreebaseService.getTypeProperties = function(types, onDone) {
+FreebaseService.getSchema = function(database, freebaseModel, onDone, onError) {
+	var types = database.getAllTypes();
+	
     var query = [
 		{
 			"/type/type/properties" : [{
                 "id" : null,
                 "name" : null,
-                "expected_type" : [{ "name" : null }]
+				"expected_type" : [{ "id" : null, "name" : null, "/freebase/type_hints/mediator" : null, "optional" : true }]
             }],
 			"id" : null,
 			"id|=" : types
@@ -145,12 +147,12 @@ FreebaseService.getTypeProperties = function(types, onDone) {
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     request.setRequestHeader("Content-Length", body.length);
     request.onreadystatechange = function() { 
-		FreebaseService._getTypePropertiesStateChangeCallback(request, onDone);
+		FreebaseService._getTypePropertiesStateChangeCallback(database, freebaseModel, request, onDone, onError);
     };
     request.send(body);
 };
 
-FreebaseService._getTypePropertiesStateChangeCallback = function(request, onDone) {
+FreebaseService._getTypePropertiesStateChangeCallback = function(database, freebaseModel, request, onDone, onError) {
     if (request.readyState != 4) {
         //Companion.log("working...");
         return;
@@ -163,12 +165,39 @@ FreebaseService._getTypePropertiesStateChangeCallback = function(request, onDone
             " status = " + request.status +
             " text = " + request.responseText
         );
-        
-        onDone({});
+		
+		onError(request.statusText);
     } else {
 		var typeProperties = {};
 		
 		var o = eval("(" + request.responseText + ")");
-		onDone(o.q1.result);
+		var typePropertyEntries = o.q1.result;
+		
+	    for (var i = 0; i < typePropertyEntries.length; i++) {
+	        var typePropertyEntry = typePropertyEntries[i];
+	        var propertyEntries = typePropertyEntry["/type/type/properties"];
+	        var propertyIDs = [];
+	        
+	        for (var j = 0; j < propertyEntries.length; j++) {
+	            var propertyEntry = propertyEntries[j];
+	            var propertyRecord = database.getPropertyForced(propertyEntry.id);
+				
+	            propertyIDs.push(propertyEntry.id);
+				
+				propertyRecord._label = propertyRecord._pluralLabel = propertyEntry.name;
+				if ("expected_type" in propertyEntry) {
+					var expectedTypes = propertyEntry["expected_type"];
+					if (expectedTypes.length > 0) {
+						var expectedType = expectedTypes[0];
+						propertyRecord._expectedType = expectedType.id;
+						propertyRecord._expectedTypeLabel = expectedType.name;
+						propertyRecord._isCVT = expectedType["/freebase/type_hints/mediator"] == true;
+					}
+				}
+				
+				freebaseModel.addPropertyToType(typePropertyEntry.id, propertyEntry.id);
+	        }
+	    }
+		onDone();
 	}
 };

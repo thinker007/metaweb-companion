@@ -6,7 +6,7 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession, box) {
     this._dom = null;
 	this._contentHighlighter = null;
 	
-	this._facetProperties = [];
+	this._facetPaths = [];
 	this._facets = [];
     this._typeFacet = null;
 	
@@ -128,32 +128,69 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
     }
     this._dom.resetAllLink.style.display = hasRestrictions ? "block" : "none";
     
-    var newProperties = {};
+    var newPaths = {};
     if (hasRestrictions) {
-    	var items = collection.getRestrictedItems();
-    	var types = database.getObjectsUnion(items, "type");
-    	types.visit(function(typeID) {
+		var nativeTypes = {
+			'/type/int': true,
+			'/type/float': true,
+			'/type/boolean': true,
+			'/type/rawstring': true,
+			'/type/uri': true,
+			'/type/datetime': true,
+			'/type/bytestring': true,
+			//'/type/key': true,
+			'/type/value': true,
+			'/type/text': true,
+			'/type/enumeration':true,
+		};
+		var processPropertyID = function(propertyID, outer, outerLabel) {
+			if (propertyID.indexOf("/common/") != 0) {
+				var propertyRecord = database.getProperty(propertyID);
+				if (propertyRecord == null) {
+					return;
+				}
+				if (("_expectedType" in propertyRecord) && (propertyRecord._expectedType in nativeTypes)) {
+					return;
+				}
+				
+				if (("_isCVT" in propertyRecord) && propertyRecord._isCVT) {
+					var typeID = propertyRecord._expectedType;
+					processTypeID(
+						typeID, 
+						outer + "." + propertyID,
+						outerLabel + 
+							(("_expectedTypeLabel" in propertyRecord) ? propertyRecord._expectedTypeLabel : "related things") + 
+							"/"
+					);
+				} else {
+					newPaths[outer + "." + propertyID] = outerLabel + propertyRecord._label;
+				}
+			}
+		};
+		
+		var processTypeID = function(typeID, outer, outerLabel) {
     		var properties = freebaseModel.getPropertiesOfType(typeID);
     		if (properties) {
     			for (var i = 0; i < properties.length; i++) {
-    				var propertyID = properties[i];
-    				if (properties[i].indexOf("/common/") != 0) {
-    					newProperties[properties[i]] = true;
-    				}
+    				processPropertyID(properties[i], outer, outerLabel);
     			}
     		}
-    	});
+		};
+		
+    	var items = collection.getRestrictedItems();
+    	var types = database.getObjectsUnion(items, "type");
+    	types.visit(function(typeID) { processTypeID(typeID, "", ""); });
 	}
     
-	for (var i = this._facetProperties.length - 1; i >= 0; i--) {
-		var facetProperty = this._facetProperties[i];
-		if (facetProperty in newProperties) {
-			delete newProperties[facetProperty];
+	for (var i = this._facetPaths.length - 1; i >= 0; i--) {
+		var facetPath = this._facetPaths[i];
+		if (facetPath in newPaths) {
+			delete newPaths[facetPath];
 		} else {
 			if (!this._facets[i].hasRestrictions()) {
 				this._facets[i].dispose();
 				this._facets.splice(i, 1);
-				this._facetProperties.splice(i, 1);
+				this._facetPaths.splice(i, 1);
 				
                 this._dom.facetList.removeItemAt(i);
                 this._dom.facetDeck.removeChild(this._dom.facetDeck.childNodes[i]);
@@ -162,31 +199,37 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 	}
 	
 	var self = this;
-	for (var propertyID in newProperties) {
-		if (database.countDistinctObjectsUnion(items, propertyID) > 1) {
-            var propertyRecord = database.getProperty(propertyID);
-            var label = (propertyRecord != null) ? propertyRecord.getLabel() : propertyID;
-            var expectedTypeLabel = (propertyRecord != null && "_expectedTypeLabel" in propertyRecord) ? 
-                propertyRecord._expectedTypeLabel : "related things";
-            
-			var config = {
-				facetLabel:         label,
-                expectedTypeLabel:  expectedTypeLabel,
-				expression:         "." + propertyID,
-				filterable:         true,
-				selectMultiple:     true,
-				sortable:           true,
-				sortMode:           "value",
-				sortDirection:      "forward",
-				showMissing:        true,
-				missingLabel:       "(missing value)",
-				fixedOrder: 	    [],
-				slideFreebase:      function(fbids) { self._slideFreebase(fbids); }
-			};
-			var facet = this._appendFacet(database, collection, propertyID + "-facet", config);
-			this._facets.push(facet);
-			this._facetProperties.push(propertyID);
+	for (var newPath in newPaths) {
+		var dot = newPath.lastIndexOf(".");
+		var propertyID = newPath.substr(dot + 1);
+		
+		var propertyRecord = database.getProperty(propertyID);
+		if (propertyRecord == null) {
+			Companion.log("Unknown property " + propertyID);
+			continue;
 		}
+		
+		var label = propertyRecord.getLabel();
+		var expectedTypeLabel = ("_expectedTypeLabel" in propertyRecord) ? 
+			propertyRecord._expectedTypeLabel : "related things";
+			
+		var config = {
+			facetLabel:         newPaths[newPath],
+			expectedTypeLabel:  expectedTypeLabel,
+			expression:         newPath,
+			filterable:         true,
+			selectMultiple:     true,
+			sortable:           true,
+			sortMode:           "value",
+			sortDirection:      "forward",
+			showMissing:        true,
+			missingLabel:       "(missing value)",
+			fixedOrder: 	    [],
+			slideFreebase:      function(fbids) { self._slideFreebase(fbids); }
+		};
+		var facet = this._appendFacet(database, collection, newPath + "-facet", config);
+		this._facets.push(facet);
+		this._facetPaths.push(newPath);
 	}
     
     if (this._dom.facetList.selectedIndex == -1 && this._facets.length > 0) {
