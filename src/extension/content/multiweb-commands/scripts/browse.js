@@ -176,13 +176,15 @@ function redrawThumbnail(record) {
 }
 
 function onMultiviewOverlayMouseMove(event) {
-	var magnifier = getMagnifierElement();
+	var magnifierElmts = getMagnifierElements();
 	var onFailure = function() {
-		magnifier.style.display = "none";
+		magnifierElmts.elmt.style.display = "none";
+		magnifierElmts.shadow.style.display = "none";
+		magnifierElmts.overview.style.display = "none";
 	};
 	var onSuccess = function(index, thumbnailRecord, clientX, clientY, clientBounds) {
 		if ("scale" in thumbnailRecord) {
-			var magnifierCanvas = magnifier.firstChild;
+			var magnifierCanvas = magnifierElmts.elmt.firstChild;
 			var magnifierCanvasWidth = magnifierCanvas.offsetWidth;
 			var magnifierCanvasHeight = magnifierCanvas.offsetHeight;
 			
@@ -197,18 +199,37 @@ function onMultiviewOverlayMouseMove(event) {
 			var multiviewOverlay = getMultiviewOverlay();
 			var overlayClientBounds = multiviewOverlay.getBoundingClientRect();
 			
-			var left = Math.min(
-				clientX - overlayClientBounds.left + 20,
-				overlayClientBounds.right - overlayClientBounds.left - 20 - magnifierCanvasWidth
-			);
-			var top = clientY - overlayClientBounds.top + 20;
-			if (top + magnifierCanvasHeight > overlayClientBounds.bottom - overlayClientBounds.top) {
-				top = clientY - overlayClientBounds.top - 20 - magnifierCanvasHeight;
-			}
+			var pointerLeft = clientX - overlayClientBounds.left;
+			var pointerTop = clientY - overlayClientBounds.top;
 			
-			magnifier.style.display = "block";
-			magnifier.style.left = Math.floor(left) + "px";
-			magnifier.style.top = Math.floor(top) + "px";
+			var left = Math.min(
+				pointerLeft + 30,
+				overlayClientBounds.right - overlayClientBounds.left - 50 - magnifierCanvasWidth
+			);
+			left = Math.floor(left);
+			
+			var top = pointerTop + 30;
+			if (top + magnifierCanvasHeight > overlayClientBounds.bottom - overlayClientBounds.top) {
+				top = clientY - overlayClientBounds.top - 50 - magnifierCanvasHeight;
+			}
+			top = Math.floor(top);
+			
+			magnifierElmts.elmt.style.display = "block";
+			magnifierElmts.elmt.style.left = left + "px";
+			magnifierElmts.elmt.style.top = top + "px";
+			
+			magnifierElmts.shadow.style.display = "block";
+			magnifierElmts.shadow.style.left = (left - 20) + "px";
+			magnifierElmts.shadow.style.top = (top - 20) + "px";
+			
+			var overviewWidth = Math.floor(thumbnailRecord.scale * magnifierCanvasWidth);
+			var overviewHeight = Math.floor(thumbnailRecord.scale * magnifierCanvasHeight);
+			
+			magnifierElmts.overview.style.display = "block";
+			magnifierElmts.overview.style.width = overviewWidth + "px";
+			magnifierElmts.overview.style.height = overviewHeight + "px";
+			magnifierElmts.overview.style.left = (pointerLeft - Math.floor(overviewWidth / 2)) + "px";
+			magnifierElmts.overview.style.top = (pointerTop - Math.floor(overviewHeight / 2)) + "px";
 		} else {
 			onFailure();
 		}
@@ -236,19 +257,36 @@ function locateThumbnail(event, onSuccess, onFailure) {
 	onFailure();
 };
 
-function getMagnifierElement() {
+function getMagnifierElements() {
+	var overviewElmt = document.getElementById("magnifier-overview");
+	if (overviewElmt == null) {
+		overviewElmt = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		overviewElmt.id = "magnifier-overview";
+		overviewElmt.style.position = "absolute";
+		overviewElmt.style.border = "1px solid red";
+		
+		getMultiviewOverlay().appendChild(overviewElmt);
+	}
+	var shadowElmt = document.getElementById("magnifier-shadow");
+	if (shadowElmt == null) {
+		shadowElmt = document.createElementNS("http://www.w3.org/1999/xhtml", "img");
+		shadowElmt.id = "magnifier-shadow";
+		shadowElmt.style.position = "absolute";
+		shadowElmt.src = "chrome://companion/skin/images/magnifier-shadow.png";
+		
+		getMultiviewOverlay().appendChild(shadowElmt);
+	}
 	var elmt = document.getElementById("magnifier");
 	if (elmt == null) {
 		elmt = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
 		elmt.id = "magnifier";
 		elmt.style.position = "absolute";
-		elmt.style.border = "1px solid #aaa";
 		
 		elmt.innerHTML = '<canvas style="width: 300px; height: 100px; -moz-border-radius: 20px;" width="300" height="100"></canvas>';
 		
 		getMultiviewOverlay().appendChild(elmt);
 	}
-	return elmt;
+	return { elmt: elmt, shadow: shadowElmt, overview: overviewElmt };
 }
 
 function getMultiviewOverlay() {
