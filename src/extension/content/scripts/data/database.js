@@ -440,7 +440,7 @@ Companion.Database._Impl.prototype._loadItem = function(itemEntry, indexFunction
         var label = itemEntry.label;
         var id = ("id" in itemEntry) ? itemEntry.id : label;
         var uri = ("uri" in itemEntry) ? itemEntry.uri : (baseURI + "item#" + encodeURIComponent(id));
-        var type = ("type" in itemEntry) ? itemEntry.type : "Item";
+        var type = ("type" in itemEntry) ? itemEntry.type : "/common/topic";
         
         var isArray = function(obj) {
            if (obj.constructor.toString().indexOf("Array") == -1)
@@ -454,16 +454,25 @@ Companion.Database._Impl.prototype._loadItem = function(itemEntry, indexFunction
             id = id[0];
         if(isArray(uri))
             uri = uri[0];
-        if(isArray(type))
-            type = type[0];
         
         this._items.add(id);
         
         indexFunction(id, "uri", uri);
         indexFunction(id, "label", label);
-        indexFunction(id, "type", type);
-        
-        this._ensureTypeExists(type, baseURI);
+		
+        if (isArray(type)) {
+			if (type.length == 0) {
+				type = [ "/common/topic" ];
+			}
+			for (var i = 0; i < type.length; i++) {
+				var t = type[i];
+				indexFunction(id, "type", t);
+				this._ensureTypeExists(t, baseURI);
+			}
+        } else {
+			indexFunction(id, "type", type);
+			this._ensureTypeExists(type, baseURI);
+		}
     }
     
     for (var p in itemEntry) {

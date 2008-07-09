@@ -71,9 +71,9 @@ Companion.PageSession.ActivatingStage.prototype._createProcessUI = function() {
 
 Companion.PageSession.ActivatingStage.prototype._createErrorHandler = function() {
 	var self = this;
-	return function() {
+	return function(s) {
 		self._process = null;
-		alert("Uh oh"); // TODO: something more reasonable :)
+		alert("Error: " + s); // TODO: something more reasonable :)
 	};
 };
 

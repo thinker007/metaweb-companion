@@ -41,6 +41,7 @@
 	
     <script src="scripts/services/opencalais.js" />
     <script src="scripts/services/freebase.js" />
+	<script src="scripts/services/google-news.js" />
 	
 	<script src="scripts/processes/entity-identification-process.js" />
 	<script src="scripts/processes/data-retrieving-process.js" />

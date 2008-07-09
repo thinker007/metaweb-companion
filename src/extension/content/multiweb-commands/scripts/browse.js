@@ -44,7 +44,9 @@ function addPage(url) {
 	loader.hidden = false;
 	contentStack.appendChild(loader);
 	
-	loader.childNodes[0].childNodes[0].value = url;
+	var hbox = loader.getElementsByTagName("hbox")[0];
+	var div = hbox.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "div")[0];
+	div.appendChild(document.createTextNode(url));
 	
 	var browser = loader.childNodes[1];
 	browser.setAttribute("src", url);

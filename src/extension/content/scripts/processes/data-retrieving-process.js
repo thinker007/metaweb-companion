@@ -24,7 +24,8 @@ Companion.DataRetrievingProcess.prototype.start = function(onDone, onError) {
     var self = this;
     FreebaseService.getAllRelationships(
         ids, 
-        function(results) { self._onDoneGetAllRelationships(ids, results); },
+		this._database,
+        function() { self._onDoneGetAllRelationships(); },
 		function(s) { self._ui.debugLog(s); },
         function (s) { self._notifyError(s); }
     );
@@ -34,15 +35,13 @@ Companion.DataRetrievingProcess.prototype.cancel = function() {
 	this._cancel = true;
 };
 
-Companion.DataRetrievingProcess.prototype._onDoneGetAllRelationships = function(ids, results) {
-    this._database.loadFreebaseItems(results);
+Companion.DataRetrievingProcess.prototype._onDoneGetAllRelationships = function() {
     this._ui.debugLog("Retrieving schemas from Freebase...");
 	
 	var self = this;
-	var freebaseModel = this._settings.freebaseModel;
 	FreebaseService.getSchema(
 		this._database,
-		freebaseModel,
+		this._settings.freebaseModel,
 		function() { self._onDone(); },
 		function (s) { self._notifyError(s); }
 	);

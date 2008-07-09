@@ -63,22 +63,22 @@ FreebaseService._reconcileBatchStateChangeCallback = function(request, entries, 
     cont();
 };
 
-FreebaseService.getAllRelationships = function(ids, onDone, onStatus, onError) {
+FreebaseService.getAllRelationships = function(ids, database, onDone, onStatus, onError) {
 	var state = { index: 0 };
-	var results = [];
 	var doNext = function() {
 		if (state.index >= ids.length) {
-			onDone(results);
+			onDone();
 		} else {
 			var start = state.index;
 			var end = Math.min(start + 5, ids.length);
 			
 			state.index = end;
 			
-			FreebaseService._getAllRelationshipsInBatch(ids, start, end, function(results2) {
-                onStatus("Got " + results2.length + " relationship(s) for entities " + start + " - " + end + " of " + ids.length);
+			FreebaseService._getAllRelationshipsInBatch(ids, start, end, function(items) {
+                onStatus("Got " + items.length + " record(s) for entities " + start + " - " + end + " of " + ids.length);
 				
-				results = results.concat(results2);
+				database.loadData({ "items" : items }, "");
+				
 				doNext();
 			}, onError);
 		}
@@ -116,13 +116,12 @@ FreebaseService._getAllRelationshipsStateChangeCallback = function(request, onDo
 		onError(request);
     } else {
 		var o = eval("(" + request.responseText + ")");
-		onDone(o.entries);
+		onDone(o.items);
 	}
 };
 
 FreebaseService.getSchema = function(database, freebaseModel, onDone, onError) {
 	var types = database.getAllTypes();
-	
     var query = [
 		{
 			"/type/type/properties" : [{
@@ -131,6 +130,7 @@ FreebaseService.getSchema = function(database, freebaseModel, onDone, onError) {
 				"expected_type" : [{ "id" : null, "name" : null, "/freebase/type_hints/mediator" : null, "optional" : true }]
             }],
 			"id" : null,
+			"name" : null,
 			"id|=" : types
 		}
 	];
@@ -168,36 +168,44 @@ FreebaseService._getTypePropertiesStateChangeCallback = function(database, freeb
 		
 		onError(request.statusText);
     } else {
-		var typeProperties = {};
-		
-		var o = eval("(" + request.responseText + ")");
-		var typePropertyEntries = o.q1.result;
-		
-	    for (var i = 0; i < typePropertyEntries.length; i++) {
-	        var typePropertyEntry = typePropertyEntries[i];
-	        var propertyEntries = typePropertyEntry["/type/type/properties"];
-	        var propertyIDs = [];
-	        
-	        for (var j = 0; j < propertyEntries.length; j++) {
-	            var propertyEntry = propertyEntries[j];
-	            var propertyRecord = database.getPropertyForced(propertyEntry.id);
+		try {
+			var o = eval("(" + request.responseText + ")");
+			var typePropertyEntries = o.q1.result;
+			
+		    for (var i = 0; i < typePropertyEntries.length; i++) {
+		        var typePropertyEntry = typePropertyEntries[i];
 				
-	            propertyIDs.push(propertyEntry.id);
-				
-				propertyRecord._label = propertyRecord._pluralLabel = propertyEntry.name;
-				if ("expected_type" in propertyEntry) {
-					var expectedTypes = propertyEntry["expected_type"];
-					if (expectedTypes.length > 0) {
-						var expectedType = expectedTypes[0];
-						propertyRecord._expectedType = expectedType.id;
-						propertyRecord._expectedTypeLabel = expectedType.name;
-						propertyRecord._isCVT = expectedType["/freebase/type_hints/mediator"] == true;
-					}
+				var typeRecord = database.getType(typePropertyEntry.id);
+				if (typeRecord != null) {
+					typeRecord._label = typeRecord._pluralLabel = typePropertyEntry.name;
 				}
 				
-				freebaseModel.addPropertyToType(typePropertyEntry.id, propertyEntry.id);
-	        }
-	    }
-		onDone();
+		        var propertyEntries = typePropertyEntry["/type/type/properties"];
+		        var propertyIDs = [];
+		        
+		        for (var j = 0; j < propertyEntries.length; j++) {
+		            var propertyEntry = propertyEntries[j];
+		            var propertyRecord = database.getPropertyForced(propertyEntry.id);
+					
+		            propertyIDs.push(propertyEntry.id);
+					
+					propertyRecord._label = propertyRecord._pluralLabel = propertyEntry.name;
+					if ("expected_type" in propertyEntry) {
+						var expectedTypes = propertyEntry["expected_type"];
+						if (expectedTypes.length > 0) {
+							var expectedType = expectedTypes[0];
+							propertyRecord._expectedType = expectedType.id;
+							propertyRecord._expectedTypeLabel = expectedType.name;
+							propertyRecord._isCVT = expectedType["/freebase/type_hints/mediator"] == true;
+						}
+					}
+					
+					freebaseModel.addPropertyToType(typePropertyEntry.id, propertyEntry.id);
+		        }
+		    }
+			onDone();
+		} catch (e) {
+			onError(e.toString());
+		}
 	}
 };
