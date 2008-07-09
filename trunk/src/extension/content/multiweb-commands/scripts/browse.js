@@ -277,6 +277,8 @@ function onMultiviewOverlayClick(event) {
 }
 
 function switchToDoc(index) {
+	hideLightboxOverlay();
+	
 	currentlyViewed = index;
 	
 	document.getElementById("content-stack").selectedIndex = index + 1;
@@ -287,6 +289,8 @@ function switchToDoc(index) {
 }
 
 function zoomOut() {
+	hideLightboxOverlay();
+	
 	mode = MODE_VIEW_ALL;
 	document.getElementById("content-stack").selectedIndex = 0;
 	document.getElementById("control-stack").selectedIndex = 0;
@@ -354,4 +358,52 @@ function addImage(parent, url, x, y) {
 	img.style.left = x + "px";
 	img.style.top = y + "px";
 	parent.appendChild(img);
+}
+
+const overlayID = "metawebCompanion-lightboxOverlay";
+function focus(itemIDs) {
+	if (mode == MODE_VIEW_ALL) {
+		return;
+	}
+	
+	var doc = thumbnailRecords[currentlyViewed].browser.contentDocument;
+    var overlayDiv = doc.getElementById(overlayID);
+    if (!(overlayDiv)) {
+        var self = this;
+        
+        overlayDiv = doc.createElement("div");
+        overlayDiv.id = overlayID;
+        overlayDiv.style.position = "fixed";
+        overlayDiv.style.top = "0px";
+        overlayDiv.style.left = "0px";
+        overlayDiv.style.width = "100%";
+        overlayDiv.style.height = "100%";
+        overlayDiv.style.zIndex = "10000";
+        doc.body.appendChild(overlayDiv);
+        
+        overlayDiv.innerHTML = 
+            '<div style="position: relative; width: 100%; height: 100%;">' +
+                '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; -moz-opacity: 0.5; background-color: black"></div>' +
+                '<div style="position: absolute; top: 70px; left: 70px; right: 70px; bottom: 70px;">' +
+                    '<iframe style="width: 100%; height: 100%;"></iframe>' +
+                '</div>' +
+            '</div>';
+        overlayDiv.firstChild.firstChild.addEventListener('click', function(evt) { hideLightboxOverlay(); }, true);
+    }
+    
+    overlayDiv.getElementsByTagName("iframe")[0].src = "http://freebase.com/view" + itemIDs[0];
+}
+
+function hideLightboxOverlay() {
+	if (mode == MODE_VIEW_ALL) {
+		return;
+	}
+	try {
+		var doc = thumbnailRecords[currentlyViewed].browser.contentDocument;
+	    var overlayDiv = doc.getElementById(overlayID);
+	    if (overlayDiv) {
+	        overlayDiv.parentNode.removeChild(overlayDiv);
+	    }
+	} catch (e) {
+	}
 }

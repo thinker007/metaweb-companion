@@ -59,6 +59,7 @@ Companion.MultiwebContentHighlighter.prototype._highlightAugmentations = functio
 };
 
 Companion.MultiwebContentHighlighter.prototype._focus = function(itemIDs) {
+	this._getMultiwebHook("focus")(itemIDs);
 };
 
 Companion.MultiwebContentHighlighter.prototype._getMultiwebHook = function(name) {
