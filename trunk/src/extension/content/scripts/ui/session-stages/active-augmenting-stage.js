@@ -9,6 +9,7 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession, box) {
 	this._facetPaths = [];
 	this._facets = [];
     this._typeFacet = null;
+	this._selectedFacet = -1;
 	
 	var self = this;
 	this._collectionListener = {
@@ -45,11 +46,26 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
 	
     this._containerBox.appendChild(this._page);
     
+	var collection = this._pageSession.collection;
+	collection.addListener(this._collectionListener);
+	
     this._listResults();
+	
+	window.setTimeout(function() { self._highlightContent(); }, 1500);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.uninstallUserInterface = function() {
     if (this._page != null) {
+		var collection = this._pageSession.collection;
+		collection.removeListener(this._collectionListener);
+		
+		if (this._typeFacet != null) {
+			this._typeFacet.uninstallUserInterface();
+		}
+		for (var i = 0; i < this._facets.length; i++){
+			this._facets[i].uninstallUserInterface();
+		}
+		
         this._containerBox.removeChild(this._page);
         this._page = null;
         this._dom = null;
@@ -86,28 +102,52 @@ Companion.PageSession.ActiveAugmentingStage.prototype._listResults = function() 
 	
     var database = this._pageSession.database;
 	var collection = this._pageSession.collection;
-	collection.addListener(this._collectionListener);
 	
-	this._highlightContent();
-	
-    var facetLabel = document.getElementById("companion-strings").
-        getString("companion.pageSession.activeAugmentingStagePage.filterByTypes.label");
-        
-	var self = this;
-	var config = {
-		facetLabel:           facetLabel,
-        expectedTypeLabel:    "types",
-		expression:           ".type",
-		filterable:           true,
-		selectMultiple:       true,
-		sortable:             true,
-		sortMode:             "count",
-		sortDirection:        "forward",
-		showMissing:          false,
-		fixedOrder: 	      [],
-		slideFreebase:        function(fbids) { self._slideFreebase(fbids); }
-	};
-	this._typeFacet = this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
+	if (this._typeFacet == null) {
+	    var facetLabel = document.getElementById("companion-strings").
+	        getString("companion.pageSession.activeAugmentingStagePage.filterByTypes.label");
+	        
+		var self = this;
+		var config = {
+			facetLabel:           facetLabel,
+	        expectedTypeLabel:    "types",
+			expression:           ".type",
+			filterable:           true,
+			selectMultiple:       true,
+			sortable:             true,
+			sortMode:             "count",
+			sortDirection:        "forward",
+			showMissing:          false,
+			fixedOrder: 	      [],
+			slideFreebase:        function(fbids) { self._slideFreebase(fbids); }
+		};
+		this._typeFacet = this._createFacet(database, collection, "type-facet", config, this._dom.typeFacetContainer);
+	} else {
+		this._typeFacet.installUserInterface(this._dom.typeFacetContainer);
+		
+		for (var i = 0; i < this._facets.length; i++) {
+			var facet = this._facets[i];
+			
+		    var vbox = document.createElement("vbox");
+		    vbox.style.height = "17em";
+		    vbox.className = "companion-facet-box";
+			
+		    this._dom.facetDeck.insertBefore(vbox, this._dom.facetDeck.lastChild);
+			
+			var label = this._getFacetLabelForList(facet);
+		    this._dom.facetList.appendItem(label, label);
+		    
+			facet.installUserInterface(vbox);
+		}
+		
+		this._dom.facetDeck.selectedIndex = this._dom.facetList.selectedIndex = this._selectedFacet;
+		this._dom.resetAllLink.style.display = this._hasRestrictions() ? "block" : "none";
+		this._dom.facetOuterDeck.selectedIndex = (this._facets.length > 0) ? 1 : 0;
+	}
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._getFacetLabelForList = function(facet) {
+	return (facet.hasRestrictions() ? "*" : "") + facet.getLabel();
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onSelectFacetList = function() {
@@ -117,6 +157,18 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onSelectFacetList = funct
     } else {
         this._dom.facetDeck.selectedIndex = i;
     }
+	this._selectedFacet = this._dom.facetDeck.selectedIndex;
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._hasRestrictions = function() {
+    var hasRestrictions = this._typeFacet.hasRestrictions();
+    for (var i = 0; !hasRestrictions && i < this._facets.length; i++) {
+        var facet = this._facets[i];
+        if (facet.hasRestrictions()) {
+            hasRestrictions = true;
+        }
+    }
+	return hasRestrictions;
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function() {try {
@@ -126,14 +178,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
 	var collection = this._pageSession.collection;
 	var freebaseModel = this._pageSession.freebaseModel;
 	
-    var hasRestrictions = this._typeFacet.hasRestrictions();
-    for (var i = 0; !hasRestrictions && i < this._facets.length; i++) {
-        var facet = this._facets[i];
-        if (facet.hasRestrictions()) {
-            hasRestrictions = true;
-        }
-    }
-    this._dom.resetAllLink.style.display = hasRestrictions ? "block" : "none";
+    var hasRestrictions = this._hasRestrictions();
+    this._dom.resetAllLink.style.display = this._hasRestrictions() ? "block" : "none";
     
     var newPaths = {};
     if (hasRestrictions) {
@@ -191,11 +237,16 @@ Companion.PageSession.ActiveAugmentingStage.prototype._onItemsChanged = function
     
 	for (var i = this._facetPaths.length - 1; i >= 0; i--) {
 		var facetPath = this._facetPaths[i];
+		var facet = this._facets[i];
+		
+		this._dom.facetList.getItemAtIndex(i).label = this._getFacetLabelForList(facet);
+		
 		if (facetPath in newPaths) {
 			delete newPaths[facetPath];
 		} else {
-			if (!this._facets[i].hasRestrictions()) {
-				this._facets[i].dispose();
+			if (!facet.hasRestrictions()) {
+				facet.dispose();
+				
 				this._facets.splice(i, 1);
 				this._facetPaths.splice(i, 1);
 				
@@ -275,9 +326,10 @@ Companion.PageSession.ActiveAugmentingStage.prototype._createFacet =
         name,
         database, 
         collection, 
-        box, 
         config
     );
+	facet.installUserInterface(box);
+	
     return facet;
 };
 

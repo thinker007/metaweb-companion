@@ -78,6 +78,10 @@ Companion.PageSession.prototype._switchStage = function(newStageCode) {
     this._internalInstallUserInterface();
 };
 
+Companion.PageSession.prototype.reset = function() {
+    this._switchStage(Companion.PageSession.STAGE_START);
+};
+
 Companion.PageSession.prototype.analyze = function() {
     this.database.removeAllStatements();
     

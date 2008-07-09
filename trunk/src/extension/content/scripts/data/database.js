@@ -424,8 +424,10 @@ Companion.Database._Impl.prototype.getNamespaces = function(idToQualifiedName, p
 
 Companion.Database._Impl.prototype._loadItem = function(itemEntry, indexFunction, baseURI) {
     if (!("label" in itemEntry) && !("id" in itemEntry)) {
+        /*
         Companion.warn("Item entry has no label and no id: " +
                               SimileAjax.JSON.toJSONString( itemEntry ));
+        */
         return;
     }
     
@@ -433,8 +435,10 @@ Companion.Database._Impl.prototype._loadItem = function(itemEntry, indexFunction
     if (!("label" in itemEntry)) {
         id = itemEntry.id;
         if (!this._items.contains(id)) {
+            /*
             Companion.warn("Cannot add new item containing no label: " +
                                   SimileAjax.JSON.toJSONString( itemEntry ));
+            */
         }
     } else {
         var label = itemEntry.label;
@@ -923,9 +927,9 @@ Companion.Database._Property.prototype._buildRangeIndex = function() {
     case "date":
         getter = function(item, f) {
             database.getObjects(item, p, null, null).visit(function(value) {
-                if (value != null && !(value instanceof Date)) {
+                /*if (value != null && !(value instanceof Date)) {
                     value = SimileAjax.DateTime.parseIso8601DateTime(value);
-                }
+                }*/
                 if (value instanceof Date) {
                     f(value.getTime());
                 }

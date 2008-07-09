@@ -3,13 +3,16 @@
  *==================================================
  */
 
-Companion.ListFacet = function(name, database, collection, box, settings) {
+Companion.ListFacet = function(name, database, collection, settings) {
     this.name = name;
+	
     this._database = database;
     this._collection = collection;
-    this._box = box;
     this._settings = settings;
     
+    this._box = null;
+	this._dom = null;
+	
     this._expression = Companion.ExpressionParser.parse(settings.expression);
     this._selectMissing = ("selectMissing" in settings) && settings.selectMissing;
     this._valueSet = new Companion.Set();
@@ -31,7 +34,6 @@ Companion.ListFacet = function(name, database, collection, box, settings) {
     
     this._cache = new Companion.FacetCache(database, collection, this._expression);
     
-    this._initializeUI();
     this._collection.addFacet(this);
 };
 
@@ -55,10 +57,27 @@ Companion.ListFacet.prototype.dispose = function() {
     this._collection = null;
     
     this._box = null;
+	this._dom = null;
     
     this._expression = null;
     this._valueSet = null;
     this._settings = null;
+};
+
+Companion.ListFacet.prototype.getLabel = function() {
+	return this._settings.facetLabel;
+};
+
+Companion.ListFacet.prototype.installUserInterface = function(box) {
+	this._box = box;
+	this._constructUI();
+	this._constructBody();
+};
+
+Companion.ListFacet.prototype.uninstallUserInterface = function() {
+	this._unregisterEventListeners();
+	this._dom = null;
+	this._box = null;
 };
 
 Companion.ListFacet.prototype.hasRestrictions = function() {
@@ -123,7 +142,9 @@ Companion.ListFacet.prototype.restrict = function(items) {
 Companion.ListFacet.prototype.update = function(items) {
     if (!this._changingSelection) {
         this._computeFacet(items);
-        this._constructBody();
+		if (this._dom != null) {
+			this._constructBody();
+		}
     }
 };
 
@@ -169,7 +190,7 @@ Companion.ListFacet.prototype._notifyCollection = function() {
     this._collection.onFacetUpdated(this);
 };
 
-Companion.ListFacet.prototype._initializeUI = function() {
+Companion.ListFacet.prototype._constructUI = function() {
     this._dom = Companion.FacetUtilities.constructFacetFrame(
         this._box,
         this._settings.facetLabel,
@@ -181,9 +202,11 @@ Companion.ListFacet.prototype._initializeUI = function() {
     this._registerEventListeners();
 };
 
-Companion.ListFacet.prototype.refresh = function() { 
-    this._registerEventListeners();
-    this._constructBody();
+Companion.ListFacet.prototype.refresh = function() {
+	if (this._dom != null) {
+		this._registerEventListeners();
+		this._constructBody();
+	}
 };
 
 Companion.ListFacet.prototype._registerEventListeners = function() {   
@@ -214,15 +237,20 @@ Companion.ListFacet.prototype._registerEventListeners = function() {
             self._onFilterKeyUp(event);
         };
     }
-	
-	/*
-    this._dom.closeButton.onclick = function(e) {
-        Companion.removeFacet(self);
-    };
-	*/
 };
 
-Companion.ListFacet.prototype._constructBody = function() {   
+Companion.ListFacet.prototype._unregisterEventListeners = function() {
+    this._dom.slidingLink.onmousedown = null;
+    this._dom.slidingLink.onclick = null;
+    this._dom.resetLink.onmousedown = null;
+    this._dom.resetLink.onclick = null;
+    this._dom.valuesContainer.onselect = null;
+    if (this._settings.filterable) {
+        this._dom.filterInput.onkeyup = null;
+    }
+};
+
+Companion.ListFacet.prototype._constructBody = function() {
     this._constructingBody = true;
     
     var entries = this._entries;
