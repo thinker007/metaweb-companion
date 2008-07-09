@@ -310,13 +310,37 @@ Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(
 Companion.PageSession.ActiveAugmentingStage.prototype._onClickBrowseTopicsAloneLink = function() {
     var collection = this._pageSession.collection;
 	var fbids = collection.getRestrictedItems().toArray();
-	var url = 
+	this._browseTo(
 		//"dataweb:browse" +
 		"chrome://companion/content/dataweb-commands/browse-inner.xul" +
-		"?fbids=" + encodeURIComponent(fbids.join(";"));
-	this._pageSession.windowSession.browser.setAttribute("src", url);
+		"?fbids=" + encodeURIComponent(fbids.join(";")));
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._onClickFindMoreNewsLink = function() {
+    var collection = this._pageSession.collection;
+	var items = collection.getRestrictedItems();
+	var labels = this._pageSession.database.getObjectsUnion(items, "label").toArray();
+	
+	var self = this;
+	var onDone = function(urls) {
+		for (var i = 0; i < urls.length; i++) {
+			urls[i] = "u=" + encodeURIComponent(urls[i]);
+		}
+		self._browseTo(
+			//"multiweb:browse" +
+			"chrome://companion/content/multiweb-commands/browse-inner.xul" +
+			"?" + urls.join("&"));
+	};
+	var onStatus = function(s) {
+		Companion.log(s);
+	};
+	var onError = function(s) {
+		alert("Error: " + s);
+	};
+	
+	GoogleNewsService.getNews(labels, 1, onDone, onStatus, onError);
 };
 
+Companion.PageSession.ActiveAugmentingStage.prototype._browseTo = function(url) {
+	this._pageSession.windowSession.browser.setAttribute("src", url);
+};

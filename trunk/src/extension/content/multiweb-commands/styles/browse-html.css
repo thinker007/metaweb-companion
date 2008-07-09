@@ -1,0 +1,9 @@
+@namespace url("http://www.w3.org/1999/xhtml");
+
+table {
+    font-size: 100%;
+}
+
+.white-label {
+	color: white;
+}
