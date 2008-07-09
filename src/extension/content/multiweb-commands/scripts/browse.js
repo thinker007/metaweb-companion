@@ -36,6 +36,10 @@ function onLoad() {
 	overlay.addEventListener('click', onMultiviewOverlayClick, true);
 }
 
+function inspect(o) {
+	window.openDialog("chrome://inspector/content/inspector.xul", "inspector", "chrome,width=800,height=600,all", o);
+}
+
 function addPage(url) {
 	var contentStack = document.getElementById("content-stack");
 	var multiviewScrollbox = document.getElementById("multiview-scrollbox-inner");
@@ -48,9 +52,50 @@ function addPage(url) {
 	var div = hbox.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "div")[0];
 	div.appendChild(document.createTextNode(url));
 	
-	var browser = loader.childNodes[1];
-	browser.setAttribute("src", url);
-	// TODO: We still don't know how to prevent frame-busting.
+	var browser = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "browser");
+	browser.setAttribute("type", "content");
+	browser.setAttribute("flex", 1);
+	
+	loader.appendChild(browser);
+	
+	browser.stop();
+	browser.userTypedValue = url;
+	
+	// This is to prevent frame busting.
+    var progressListener = {
+        QueryInterface : function(iid) {
+            if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
+                iid.equals(Components.interfaces.nsISupportsWeakReference) ||
+                iid.equals(Components.interfaces.nsISupports)) {
+                return this;
+            }
+            throw Components.results.NS_NOINTERFACE;
+        },
+    
+        stateIsRequest: false,
+        onStateChange : function(progress, request, flags, status) {
+			try {
+				var win = browser.contentDocument.defaultView.wrappedJSObject;
+				win["top"] = win["self"] = win["parent"] = win;
+			} catch (e) {}
+		},
+        onProgressChange : function() {},
+        onStatusChange : function() {},
+        onSecurityChange : function() {},
+        onLinkIconAvailable : function() {}, 
+        onLocationChange: function(progress, request, location) {}
+    };
+    browser.addProgressListener(progressListener, 
+        Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
+
+	const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
+	var flags = nsIWebNavigation.LOAD_FLAGS_NONE; //LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP;
+	try {
+		browser.loadURIWithFlags(url, flags, null, "utf-8", null);
+	} catch (ex) {
+		alert(ex);
+	}
+
 	
 	var box = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
 	box.style.width = "400px";
