@@ -8,7 +8,7 @@ FreebaseService.reconcile = function(entries, onDone) {
     }
     
 	var url = Companion.getHelperURL() + "reconciler";
-	Companion.log("Using reconciler service at " + url);
+	//Companion.log("Using reconciler service at " + url);
 
     var request = new XMLHttpRequest();
     request.open("POST", url, true);
@@ -90,7 +90,7 @@ FreebaseService._getAllRelationshipsInBatch = function(ids, start, end, onDone, 
 	var ids2 = ids.slice(start, end);
 	
 	var url = Companion.getHelperURL() + "fact-finder";
-	Companion.log("Using fact finder service at " + url);
+	//Companion.log("Using fact finder service at " + url);
 	
     var request = new XMLHttpRequest();
     request.open("POST", url, true);

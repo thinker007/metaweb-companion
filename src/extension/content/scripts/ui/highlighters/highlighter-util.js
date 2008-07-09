@@ -1,6 +1,7 @@
 Companion.HighlighterUtil = {
 	augmentingStyles: {
 		styleID: 		"metawebCompanion-style",
+		flagID:			"metawebCompanion-style-flag", // we need this because the browser seems to keep the style element around
 		detectionClass: "metawebCompanion-detection",
 		highlightClass: "metawebCompanion-highlight"
 	}
@@ -24,6 +25,13 @@ Companion.HighlighterUtil.addAugmentingStyles = function(doc) {
         
         head.appendChild(style);
     }
+	
+    var flag = doc.getElementById(Companion.HighlighterUtil.augmentingStyles.flagID);
+    if (!flag) {
+		flag = doc.createElement("div");
+		flag.id = Companion.HighlighterUtil.augmentingStyles.flagID;
+		doc.body.appendChild(flag);
+	}
 };
 
 Companion.HighlighterUtil.removeAugmentingStyles = function(doc) {
@@ -31,10 +39,14 @@ Companion.HighlighterUtil.removeAugmentingStyles = function(doc) {
     if (style) {
 		style.parentNode.removeChild(style);
     }
+    var flag = doc.getElementById(Companion.HighlighterUtil.augmentingStyles.flagID);
+    if (flag) {
+		flag.parentNode.removeChild(style);
+    }
 };
 
 Companion.HighlighterUtil.hasAugmentingStyles = function(doc) {
-    return doc.getElementById(Companion.HighlighterUtil.augmentingStyles.styleID) != null;
+    return doc.getElementById(Companion.HighlighterUtil.augmentingStyles.flagID) != null;
 };
 
 Companion.HighlighterUtil.addAugmentations = function(doc, identityModel, onclick) {

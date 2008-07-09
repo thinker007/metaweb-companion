@@ -74,6 +74,7 @@ Companion.PageSession.ActivatingStage.prototype._createErrorHandler = function()
 	return function(s) {
 		self._process = null;
 		alert("Error: " + s); // TODO: something more reasonable :)
+		self._pageSession.reset();
 	};
 };
 
