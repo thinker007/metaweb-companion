@@ -1,0 +1,10 @@
+<!ENTITY companion.menuItem.toggleSidepane.label "Metaweb Companion">
+<!ENTITY companion.facet.resetLink.label "Reset selection">
+<!ENTITY companion.facetContainer.resetAllLink.label "Reset all selection">
+<!ENTITY companion.facet.fillInMissingData.label "Fill in missing data">
+
+<!ENTITY companion.pageSession.activeAugmentingStagePage.filterByTypes.label "Filter by Types">
+<!ENTITY companion.pageSession.activeAugmentingStagePage.filterByProperties.label "Filter by Properties">
+
+<!ENTITY companion.pageSession.activeAugmentingStagePage.browseTopicsAlone.label "Browse these topics by themselves">
+<!ENTITY companion.pageSession.activeAugmentingStagePage.findNews.label "Find more news about these topics">

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://companion/content/multiweb-commands/styles/browse.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/content/multiweb-commands/styles/browse-html.css" type="text/css"?>
+
+<page
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	onload="onLoad();">
+	
+	<script src="chrome://companion/content/multiweb-commands/scripts/browse.js" />
+	
+	<vbox flex="1" title="">
+		<deck id="content-stack" flex="1">
+			<scrollbox 
+				id="multiview-scrollbox"
+				orient="horizontal"
+				style="overflow: auto; padding: 10px; position: relative;">
+				<stack>
+					<hbox id="multiview-scrollbox-inner"></hbox>
+					
+					<html:div id="multiview-pin-shadow-overlay" flex="1" style="position: relative; width: 100%; height: 100%;"></html:div>
+					<html:div id="multiview-pin-overlay" flex="1" style="position: relative; width: 100%; height: 100%;"></html:div>
+					
+					<html:div id="multiview-overlay" flex="1" style="position: relative; width: 100%; height: 100%;"></html:div>
+				</stack>
+			</scrollbox>
+		</deck>
+		<deck id="control-stack">
+			<hbox>
+				<spacer flex="1" /><label value="Click to Zoom In." class="white-label" /><spacer flex="1" />
+			</hbox>
+			<hbox>
+				<spacer flex="5" />
+				<button label="Previous" oncommand="previousDoc();" id="previous-doc-button" />
+				<button label="Next" oncommand="nextDoc();" id="next-doc-button" />
+				<spacer flex="1" />
+				<button label="Zoom Out" oncommand="zoomOut();" />
+				<spacer flex="5" />
+			</hbox>
+		</deck>
+	</vbox>
+	
+	<vbox id="loader-template" hidden="true"
+		xmlns:html="http://www.w3.org/1999/xhtml">
+		<hbox class="loader-header">
+			<html:div flex="1" class="white-label" style="overflow: hidden"></html:div>
+			<spacer />
+			<button label="Copy URL" />
+			<button label="Open by Itself" />
+		</hbox>
+	</vbox>
+</page>

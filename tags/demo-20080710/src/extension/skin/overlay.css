@@ -1,0 +1,63 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+listbox.companion-pageSession-activatingStagePage-logList {
+	border-top-style:      none;
+	border-bottom-style:   none;
+	border-left-style:     none;
+	border-right-style:    none;
+	background-color:      transparent;
+}
+
+#companion-sidePaneSplitter {
+}
+
+#companion-sidePane {
+	width: 	200px;
+}
+
+.companion-typeFacet {
+	height: 17em;
+}
+
+.companion-facet-box {
+}
+
+splitter.companion-facetContainer-splitter {
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+.companion-pageSession-activeAugmentingStagePage-section {
+	padding:       0px;
+	margin:        5px 0px;
+}
+
+.companion-pageSession-activeAugmentingStagePage-sectionLabel {
+    font-size:     120%;
+    font-weight:   bold;
+    padding:       0px;
+    margin:        0px;
+}
+
+.companion-facetContainer-outerDeck {
+	margin-top: 1em;
+}
+
+.companion-facetContainer-list {
+    margin: 0px;
+}
+
+tree.companion-facet-valuesContainer {
+    margin: 0;
+    padding: 0;
+    border-top-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+    border-right-style: none;
+}
+
+.companion-facet-header label {
+}
+

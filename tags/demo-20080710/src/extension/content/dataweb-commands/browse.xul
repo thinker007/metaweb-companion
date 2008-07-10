@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	title="Dataweb Browsing">
+	
+	<browser id="the-browser" flex="1" />
+	<script>
+		/*  We need to embedd chrome://.../browser-inner.xul because chrome: is the
+			only protocol handler that has enough permissions to do various
+			naughty things that we will probably do.
+		*/
+		var href = document.location.href;
+		var q = href.indexOf("?");
+		var url = "chrome://companion/content/dataweb-commands/browse-inner.xul" + href.substr(q);
+		document.getElementById("the-browser").setAttribute("src", url);
+	</script>
+</page>

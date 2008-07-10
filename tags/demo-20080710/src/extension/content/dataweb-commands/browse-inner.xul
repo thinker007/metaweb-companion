@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://companion/content/dataweb-commands/styles/browse.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/content/dataweb-commands/styles/browse-html.css" type="text/css"?>
+<!-- <!DOCTYPE overlay SYSTEM "chrome://companion/locale/companion.dtd"> -->
+
+<page
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    title="Dataweb Browsing"
+    onload="onLoad();"
+    id="the-page"
+    >
+    
+    <script src="chrome://companion/content/scripts/util/jsonize.js" />
+    <script src="chrome://companion/content/dataweb-commands/scripts/browse.js" />
+    
+	<html:div id="view-summary-container-outer"><html:div id="view-summary-container"></html:div></html:div>
+    <scrollbox orient="vertical" style="overflow: auto" flex="1"><html:div id="view-container"></html:div><html:div style="clear: both;">&#160;</html:div></scrollbox>
+</page>

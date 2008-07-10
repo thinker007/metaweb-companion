@@ -1,0 +1,32 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+page {
+	font-family: 	Arial;
+	font-size:		10pt;
+}
+
+#content-stack {
+}
+
+#control-stack {
+	padding: 5px;
+	background-color: #444;
+}
+
+#multiview-scrollbox {
+	background-color: #666;
+}
+
+.thumbnail-container {
+	padding: 	50px;
+	width: 		500px;
+}
+
+.loader-header {
+	padding: 			5px;
+	background-color: 	#444;
+}
+
+.white-label {
+	color: white;
+}
