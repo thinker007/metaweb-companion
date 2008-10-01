@@ -202,13 +202,13 @@ OpenCalaisService._stateChangeCallback = function(job) {
     }
     
     if (job.onDone) {
-	    var textNode = request.responseXML.firstChild.firstChild;
-	    var xmlstr = "";
-	    while (textNode != null) {
-	        xmlstr += textNode.nodeValue;
-	        textNode = textNode.nextSibling;
-	    }
-	    
+        var textNode = request.responseXML.firstChild.firstChild;
+        var xmlstr = "";
+        while (textNode != null) {
+            xmlstr += textNode.nodeValue;
+            textNode = textNode.nextSibling;
+        }
+        
         var xml = (new DOMParser()).parseFromString(xmlstr,"text/xml");
         job.onDone(xml); // document element
     }
