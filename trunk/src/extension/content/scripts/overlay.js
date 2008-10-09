@@ -1,5 +1,6 @@
 var Companion = {
-	sidepaneHidden: true
+    sidepaneHidden:  true,
+    _consoleService: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService)
 };
 
 Companion.log = function(msg) {
@@ -36,7 +37,6 @@ Companion.cancelEvent = function(evt) {
 window.addEventListener("load", function(e) { Companion.onLoad(e); }, false);
 Companion.onLoad = function() {
     this.strings = document.getElementById("companion-strings");
-    this._consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
     
     var tabBrowser = document.getElementById("content");
     var tabs = tabBrowser.selectedTab.parentNode;
