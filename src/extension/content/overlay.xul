@@ -2,6 +2,7 @@
 
 <?xml-stylesheet href="chrome://companion/skin/overlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://companion/skin/overlay-html.css" type="text/css"?>
+<?xml-stylesheet href="chrome://companion/content/mws-api/compilations/parallax.css" type="text/css"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://companion/locale/companion.dtd">
 
@@ -50,6 +51,11 @@
     
     <script src="scripts/models/identity-model.js" />
     <script src="scripts/models/freebase-model.js" />
+    
+    <script>window.metawebSuite_params = { debug: true, autoLoad: false, compilation: null };</script>
+    <script src="mws-api/mw.js?autoLoad=false" />
+    <script>window.mw.system.log = window.mw.system.logDebug = function(o) { Companion.log(o); };</script>
+    <script src="mws-api/compilations/parallax.js" charset="utf-8" />
     
     <stringbundleset id="stringbundleset">
         <stringbundle id="companion-strings" src="chrome://companion/locale/companion.properties"/>
