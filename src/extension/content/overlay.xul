@@ -108,8 +108,8 @@
                     </hbox>
                     <separator class="groove" />
 
-                    <html:div flex="1" class="companion-facetPanel">
-                    </html:div>
+                    <vbox flex="1" class="companion-facetPanel">
+                    </vbox>
                 </vbox>
                 
                 <html:div id="companion-facetPanelTemplate">

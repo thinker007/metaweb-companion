@@ -108,7 +108,7 @@ Companion.openSidePane = function() {
     document.getElementById("companion-sidePane").hidden = false;
 };
 
-Companion.closeSidebar = function() {
+Companion.closeSidePane = function() {
     document.getElementById("companion-sidePaneSplitter").hidden = true;
     document.getElementById("companion-sidePane").hidden = true;
 };
