@@ -1,4 +1,4 @@
-<!ENTITY companion.menuItem.toggleSidepane.label "Metaweb Companion">
+<!ENTITY companion.menuItem.activate.label "Metaweb Companion">
 <!ENTITY companion.facet.resetLink.label "Reset selection">
 <!ENTITY companion.facetContainer.resetAllLink.label "Reset all selection">
 <!ENTITY companion.facet.fillInMissingData.label "Fill in missing data">

@@ -61,3 +61,13 @@ tree.companion-facet-valuesContainer {
 .companion-facet-header label {
 }
 
+#companion-statusBarPanel-progress {
+    margin-right: 10px;
+}
+
+#companion-statusBarPanel-progress image {
+    vertical-align: middle;
+}
+
+#companion-statusBarPanel-progress label {
+}

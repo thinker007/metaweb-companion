@@ -56,6 +56,7 @@
     <script src="mws-api/mw.js?autoLoad=false" />
     <script>window.mw.system.log = window.mw.system.logDebug = function(o) { Companion.log(o); };</script>
     <script src="mws-api/compilations/parallax.js" charset="utf-8" />
+    <script src="scripts/mws-api-override.js" charset="utf-8" />
     
     <stringbundleset id="stringbundleset">
         <stringbundle id="companion-strings" src="chrome://companion/locale/companion.properties"/>
@@ -63,21 +64,21 @@
     
     <!-- ==================== Commands, keys, and menus ==================== -->
     <commandset id="mainCommandSet">
-        <command id="companion-toggleSidepane-cmd" oncommand="Companion.toggleSidepane()"/>
+        <command id="companion-activate-cmd" oncommand="Companion.activate()"/>
     </commandset>
     
     <keyset id="mainKeyset">
-        <key id="companion-toggleSidepane-key" keycode="VK_F9"
-                command="companion-toggleSidepane-cmd" />
+        <key id="companion-activate-key" keycode="VK_F9"
+                command="companion-activate-cmd" />
     </keyset>
     
-    <menupopup id="menu_viewPopup">
-        <menuitem id="companion-toggleSidepane-menuItem"
-            insertbefore="toggle_taskbar"
-            label="&companion.menuItem.toggleSidepane.label;"
-            type="checkbox"
-            key="companion-toggleSidepane-key"
-            command="companion-toggleSidepane-cmd" />
+    <menupopup id="menu_ToolsPopup">
+        <menuseparator insertbefore="sanitizeSeparator" />
+        <menuitem id="companion-activate-menuItem"
+            insertbefore="sanitizeSeparator"
+            label="&companion.menuItem.activate.label;"
+            key="companion-activate-key"
+            command="companion-activate-cmd" />
     </menupopup>
     
     <hbox id="browser">
@@ -93,145 +94,83 @@
             >
             
             <label value="Metaweb Companion" style="padding: 2px; background: #888; color: white; margin: 0;" />
-            <deck id="companion-crossWindowDeck" flex="1" style="padding: 5px;">
-            </deck>
             
             <!-- all templates -->
             <box hidden="true">
-                <vbox id="companion-windowSessionPage-template">
-                    <!-- interaction stage deck -->
-                    <vbox flex="1" />
-                </vbox>
-                
-                <!-- start stage -->
-                <vbox id="companion-pageSession-startStagePage" flex="1">
-                    <description>
-                        Metaweb Companion helps you explore the information on this page
-                        beyond what's explicitly on the page itself.
-                    </description>
-                    <spacer />
-                    <hbox>
-                        <button label="Analyze" />
-                        <spacer flex="1" />
-                    </hbox>
-                </vbox>
-                
-                <!-- activating stage -->
-                <vbox id="companion-pageSession-activatingStagePage" flex="1">
-                    <description>
-                        Metaweb Companion helps you explore the information on this page
-                        beyond what's explicitly on the page itself.
-                    </description>
-                    <spacer />
-                    <progressmeter mode="undetermined" />
-                    <spacer />
-                    <listbox disabled="true" flex="1"
-                        class="companion-pageSession-activatingStagePage-logList" />
-                </vbox>
-                
                 <!-- active-augmenting stage -->
                 <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1"
                     xmlns:html="http://www.w3.org/1999/xhtml">
                     <hbox>
-                        <vbox flex="1">
-                            <html:ul>
-                                <html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.browseTopicsAlone.label;</html:a></html:li>
-                                <html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.findNews.label;</html:a></html:li>
-                            </html:ul>
-                        </vbox>
-                        <vbox>
-                            <button label="Re-Analyze" />
-                            <spacer flex="1" />
-                        </vbox>
+                        <html:ul>
+                            <html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.browseTopicsAlone.label;</html:a></html:li>
+                            <html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.findNews.label;</html:a></html:li>
+                        </html:ul>
                     </hbox>
                     <separator class="groove" />
-                    
-                    <hbox class="companion-pageSession-activeAugmentingStagePage-section">
-                        <label value="&companion.pageSession.activeAugmentingStagePage.filterByTypes.label;"
-                            class="companion-pageSession-activeAugmentingStagePage-sectionLabel"
-                            flex="1" 
-                            />
-                    </hbox>
-                    
-                    <vbox class="companion-typeFacet" />
-                    <splitter class="companion-facetContainer-splitter" />
-                    
-                    <deck flex="1" class="companion-facetContainer-outerDeck">
-                        <vbox flex="1">
-                            <label value="Select one or more types from the list above." />
-                            <spacer flex="1" />
-                        </vbox>
-                        <vbox flex="1">
-                            <hbox class="companion-pageSession-activeAugmentingStagePage-section">
-                                <label value="&companion.pageSession.activeAugmentingStagePage.filterByProperties.label;"
-                                    class="companion-pageSession-activeAugmentingStagePage-sectionLabel"
-                                    flex="1" 
-                                    />
-                                <html:div style="display: none;"><html:a href="javascript:{}">&companion.facetContainer.resetAllLink.label;</html:a></html:div>
-                            </hbox>
-                            
-                            <hbox flex="1">
-                                <listbox 
-                                    class="companion-facetContainer-list"
-                                    flex="1" 
-                                    seltype="single"
-                                    >
-                                    </listbox>
-                                
-                                <splitter class="companion-facetContainer-splitter" />
-                                
-                                <deck flex="1">
-                                    <vbox flex="1">
-                                        <label value="Select a property in the list on the left." />
-                                        <spacer flex="1" />
-                                    </vbox>
-                                </deck>
-                            </hbox>
-                        </vbox>
-                    </deck>
+
+                    <html:div flex="1" class="companion-facetPanel">
+                    </html:div>
                 </vbox>
                 
-                <!-- active-meta stage -->
-                <vbox id="companion-pageSession-activeMetaStagePage" flex="1">
-                    <hbox>
-                        <spacer flex="1" />
-                        <button label="Re-Analyze" />
-                    </hbox>
-                    <listbox flex = "1" />
-                    <splitter />
-                    <listbox flex = "1" />
-                </vbox>
+                <html:div id="companion-facetPanelTemplate">
+                    <html:div></html:div>
+                    <html:div class="facet-pane-heading">Filter Results</html:div>
+                    <html:div class="facet-pane-controls" style="display: none;">
+                        <html:a href="javascript:{}" class="action">more filters </html:a>
+                    </html:div>
+                    <html:div></html:div>
+                    <html:div class="facet-pane-status-section">
+                        <html:img src="../images/progress-running.gif" /> Suggesting useful filters...
+                    </html:div>
+                </html:div>
                 
-                <!-- facet template -->
-                <box id="companion-facet-template">
-                    <html:div id="companion-facet-quickFilter"
-                        xmlns:html="http://www.w3.org/1999/xhtml"
-                        class="companion-facet-quickFilter"><html:div><html:input></html:input></html:div></html:div>
-                    
-                    <hbox id="companion-facet-header"
-                        xmlns:html="http://www.w3.org/1999/xhtml">
-                        <hbox flex="1"><html:div style="display: none;"><html:a href="javascript:{}">&companion.facet.resetLink.label;</html:a></html:div></hbox>
-                        <hbox><html:div><html:a href="javascript:{}">Browse to these 6 people</html:a></html:div></hbox>
-                    </hbox>
-                    
-                    <tree id="companion-facet-valuesContainer"
-                        class="companion-facet-valuesContainer"
-                        flex="1"
-                        seltype="multiple">
-                        <treecols>
-                            <treecol id="value-column" label="value" flex="1" />
-                            <treecol id="count-column" label="#" flex="0" style="width: 4em; text-align: right;" />
-                        </treecols>
-                        <treechildren />
-                    </tree>
-                    
-                    <hbox id="companion-facet-footer"
-                        xmlns:html="http://www.w3.org/1999/xhtml">
-                        <html:div><html:a href="javascript:{}">&companion.facet.fillInMissingData.label;</html:a></html:div>
-                    </hbox>
-                </box>
+                <html:div id="companion-searchFacetTemplate">
+                    <html:div class="facet-header">
+                        <html:span class="facet-header-label">Search within Results</html:span>
+                        <html:a href="javascript:{}" class="facet-header-action" style="display: none;">reset</html:a>
+                    </html:div>
+                    <html:div class="text-search-facet-input-container"><html:input></html:input></html:div>
+                    <html:div class="text-search-facet-status" style="display: none">
+                        Searched for: <html:span class="text-search-facet-query"></html:span>.
+                        <html:a href="javascript:{}" class="facet-header-action">clear</html:a>
+                    </html:div>
+                </html:div>
+                
+                <html:div id="companion-facetTemplate">
+                    <html:div class="facet-header">
+                        <html:img class="facet-header-close" src="../images/close-button.png" />
+                        <html:span class="facet-header-label"></html:span>
+                        <html:a href="javascript:{}" class="action" style="display: none;">reset</html:a>
+                        <html:a href="javascript:{}" class="action" style="display: none;">map</html:a>
+                        <html:a href="javascript:{}" class="action" style="display: none;">query</html:a>
+                    </html:div>
+                    <html:div class="facet-body" style="display: none;"></html:div>
+                    <html:div class="facet-status-section status"><html:img src="../images/progress-running.gif" /> Working...</html:div>
+                    <html:div class="facet-footer">
+                        <html:a href="javascript:{}" class="action" style="display: none;">more choices...</html:a>
+                        <html:a href="javascript:{}" class="action" style="display: none;">show top choices only</html:a>
+                        <html:span style="display: none;"> - </html:span>
+                        <html:a href="javascript:{}" class="action">settings</html:a>
+                    </html:div>
+                </html:div>
+                
+                <html:div id="companion-facetChoiceTemplate">
+                    <html:a href="javascript:{}" class="facet-choice-label"></html:a>
+                    <html:span class="facet-choice-count"></html:span>
+                    <html:a href="javascript:{}" class="facet-choice-action action"></html:a>
+                </html:div>
             </box><!-- all templates -->
-            
         </vbox>
     </hbox>
+    
+    <statusbar id="status-bar">
+        <statusbarpanel id="companion-statusBarPanel" insertafter="page-report-button">
+            <hbox id="companion-statusBarPanel-progress" hidden="true">
+                <image src="chrome://global/skin/icons/loading_16.png"/>
+                <label id="companion-statusBarPanel-progress-message" value="" />
+                <html:a id="companion-statusBarPanel-progress-cancelButton">Cancel</html:a>
+            </hbox>
+            <image id="companion-statusBarPanel-freebaseButton" src="chrome://companion/skin/images/freebase-logo-small.png" />
+        </statusbarpanel>
+    </statusbar>
 </overlay>
