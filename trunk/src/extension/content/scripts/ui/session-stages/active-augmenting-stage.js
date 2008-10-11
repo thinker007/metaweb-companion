@@ -11,8 +11,10 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession) {
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = function() {
+    var self = this;
+    
     document.getElementById("companion-statusBarPanel-freebaseButton").onclick = function() {
-        self._pageSession.activate();
+        self._pageSession.reset();
     };
     
     this._page = document.getElementById("companion-pageSession-activeAugmentingStagePage").cloneNode(true);
@@ -21,14 +23,13 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     
     this._facetPanel.installUI(this._page.lastChild);
     
-    var self = this;
     window.setTimeout(function() { self._highlightContent(); }, 1500);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.uninstallUserInterface = function() {
-    document.getElementById("companion-statusBarPanel-freebaseButton").onclick = null;
-    
     Companion.closeSidePane();
+    
+    document.getElementById("companion-statusBarPanel-freebaseButton").onclick = null;
     
     this._page.parentNode.removeChild(this._page);
     this._page = null;

@@ -53,10 +53,14 @@ Companion.PageSession.prototype._internalUninstallUserInterface = function() {
 
 Companion.PageSession.prototype._switchStage = function(newStageCode) {
     if (this._stage != null) {
-        if (this._pageHasFocus) {
-            this._stage.uninstallUserInterface();
+        try {
+            if (this._pageHasFocus) {
+                this._stage.uninstallUserInterface();
+            }
+            this._stage.dispose();
+        } catch (e) {
+            Companion.exception(e);
         }
-        this._stage.dispose();
         this._stage = null;
     }
     

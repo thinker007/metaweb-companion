@@ -37,11 +37,15 @@ Companion.HighlighterUtil.addAugmentingStyles = function(doc) {
 Companion.HighlighterUtil.removeAugmentingStyles = function(doc) {
     var style = doc.getElementById(Companion.HighlighterUtil.augmentingStyles.styleID);
     if (style) {
-        style.parentNode.removeChild(style);
+        try {
+            style.parentNode.removeChild(style);
+        } catch (e) {}
     }
     var flag = doc.getElementById(Companion.HighlighterUtil.augmentingStyles.flagID);
     if (flag) {
-        flag.parentNode.removeChild(style);
+        try {
+            flag.parentNode.removeChild(style);
+        } catch (e) {}
     }
 };
 

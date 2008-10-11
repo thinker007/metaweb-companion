@@ -18,6 +18,8 @@ window.MetawebSuite.parallax.FacetPanelLayer._fillInDom = function(div) {
     
     copyChildren(document.getElementById("companion-facetPanelTemplate"), div);
     
+    div.style.overflow = "auto";
+    
     var divs = div.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "div");
     return {
         textSearchFacetContainer:   divs[0],
@@ -28,8 +30,11 @@ window.MetawebSuite.parallax.FacetPanelLayer._fillInDom = function(div) {
     };
 };
 
-window.MetawebSuite.parallax.FacetPanelLayer._createFacetContainer = function() {
-    return document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+var old_FacetPanelLayer_installUI = mw.parallax.FacetPanelLayer.prototype.installUI;
+mw.parallax.FacetPanelLayer.prototype.installUI = function(div) {
+    old_FacetPanelLayer_installUI.call(this, div);
+    div.style.overflow = "auto";
+    div.style.display = "-moz-box";
 };
 
 window.TextSearchFacet._fillInDom = function(div) {
