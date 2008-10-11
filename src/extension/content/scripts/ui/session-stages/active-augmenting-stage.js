@@ -8,6 +8,8 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession) {
     this._parallaxApp = new mw.parallax.ParallaxApp();
     this._parallaxApp.setNewQuery({ ids: this._pageSession.identityModel.getAllFreebaseIDs() });
     this._facetPanel = new mw.parallax.FacetPanel(new mw.ui.UIContext(this._parallaxApp.getUIContext()));
+    
+    this._getCollection().addListener(this);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = function() {
@@ -42,12 +44,21 @@ Companion.PageSession.ActiveAugmentingStage.prototype.dispose = function() {
         this._contentHighlighter = null;
     }
     
+    this._getCollection().removeListener(this);
     this._parallaxApp.dispose();
     this._parallaxApp = null;
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._getDocument = function() {
     return this._pageSession.windowSession.browser.contentDocument;
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._getCollection = function() {
+    return this._parallaxApp.getCurrentTrailPoint().collection;
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype.onItemsChanged = function() {
+    this._highlightContent();
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = function() {
@@ -66,7 +77,28 @@ Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = functi
         }
     }
     this._contentHighlighter.setDocument(this._getDocument());
-    this._contentHighlighter.highlight(this._pageSession.identityModel.getAllFreebaseIDs());
+    
+    var self = this;
+    this._getRestrictedItemIDs(function(itemIDs) {
+        self._contentHighlighter.highlight(itemIDs);
+    });
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._getRestrictedItemIDs = function(onDone) {
+    var queryNode = this._getCollection().addRestrictions();
+    queryNode["id"] = null;
+    
+    mw.freebase.mql.read(
+        [queryNode], 
+        function(o) {
+            var itemIDs = [];
+            for (var i = 0; i < o.result.length; i++) {
+                itemIDs.push(o.result[i].id);
+            }
+            onDone(itemIDs);
+        }, 
+        mw.system.exception
+    );
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(fbids) {
