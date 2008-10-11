@@ -1,3 +1,5 @@
+mw.ui.history.enabled = false;
+
 Logging.log = function() {};
 
 function genericErrorHandler(s, query) {
@@ -21,13 +23,16 @@ window.MetawebSuite.parallax.FacetPanelLayer._fillInDom = function(div) {
     div.style.overflow = "auto";
     
     var divs = div.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "div");
-    return {
+    var dom = {
         textSearchFacetContainer:   divs[0],
         heading:                    divs[1],
         controlContainer:           divs[2],
         facetContainer:             divs[3],
         statusSection:              divs[4]
     };
+    dom.addFiltersAction = dom.controlContainer.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "a")[0];
+    
+    return dom;
 };
 
 var old_FacetPanelLayer_installUI = mw.parallax.FacetPanelLayer.prototype.installUI;
