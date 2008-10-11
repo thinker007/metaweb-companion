@@ -120,7 +120,7 @@
                     </html:div>
                     <html:div></html:div>
                     <html:div class="facet-pane-status-section">
-                        <html:img src="../images/progress-running.gif" /> Suggesting useful filters...
+                        <html:img src="chrome://companion/content/mws-api/packages/parallax/images/progress-running.gif" /> Suggesting useful filters...
                     </html:div>
                 </html:div>
                 
@@ -138,14 +138,14 @@
                 
                 <html:div id="companion-facetTemplate">
                     <html:div class="facet-header">
-                        <html:img class="facet-header-close" src="../images/close-button.png" />
+                        <html:img class="facet-header-close" src="chrome://companion/content/mws-api/packages/parallax/images/close-button.png" />
                         <html:span class="facet-header-label"></html:span>
                         <html:a href="javascript:{}" class="action" style="display: none;">reset</html:a>
                         <html:a href="javascript:{}" class="action" style="display: none;">map</html:a>
                         <html:a href="javascript:{}" class="action" style="display: none;">query</html:a>
                     </html:div>
                     <html:div class="facet-body" style="display: none;"></html:div>
-                    <html:div class="facet-status-section status"><html:img src="../images/progress-running.gif" /> Working...</html:div>
+                    <html:div class="facet-status-section status"><html:img src="chrome://companion/content/mws-api/packages/parallax/images/progress-running.gif" /> Working...</html:div>
                     <html:div class="facet-footer">
                         <html:a href="javascript:{}" class="action" style="display: none;">more choices...</html:a>
                         <html:a href="javascript:{}" class="action" style="display: none;">show top choices only</html:a>
