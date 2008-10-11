@@ -1,38 +1,24 @@
-Companion.PageSession.ActivatingStage = function(pageSession, box) {
+Companion.PageSession.ActivatingStage = function(pageSession) {
     this._pageSession = pageSession;
-    this._containerBox = box;
-    
-    this._page = null;
-    this._dom = null;
     this._process = null;
 };
 
 Companion.PageSession.ActivatingStage.prototype.installUserInterface = function() {
     var self = this;
     
-    this._page = document.getElementById("companion-pageSession-activatingStagePage").cloneNode(true);
-    
-    this._dom = {};
-    this._dom.logListbox = this._page.getElementsByTagName("listbox")[0];
-    
-    this._page.hidden = false;
-    this._containerBox.appendChild(this._page);
+    document.getElementById("companion-statusBarPanel-progress").hidden = false;
+    document.getElementById("companion-statusBarPanel-progress-cancelButton").onclick = function() {
+        self._pageSession.reset();
+    };
 };
 
 Companion.PageSession.ActivatingStage.prototype.uninstallUserInterface = function() {
-    if (this._page != null) {
-        this._containerBox.removeChild(this._page);
-        this._page = null;
-        this._dom = null;
-    }
+    document.getElementById("companion-statusBarPanel-progress").hidden = true;
+    document.getElementById("companion-statusBarPanel-progress-cancelButton").onclick = null;
 };
 
 Companion.PageSession.ActivatingStage.prototype.dispose = function() {
     this._cancelProcess();
-    
-    this._page = null;
-    this._dom = null;
-    this._containerBox = null;
     this._pageSession = null;
 };
 
@@ -61,10 +47,10 @@ Companion.PageSession.ActivatingStage.prototype._getDocument = function() {
 };
 
 Companion.PageSession.ActivatingStage.prototype._createProcessUI = function() {
-    var self = this;
+    var label = document.getElementById("companion-statusBarPanel-progress-message");
     return {
         debugLog: function(s) {
-            if (self._dom != null) { self._dom.logListbox.appendItem(s, s); }
+            label.value = s;
         }
     };
 };
@@ -82,7 +68,7 @@ Companion.PageSession.ActivatingStage.prototype._handleStandardWebPage = functio
     var self = this;
     var identityModel = new Companion.IdentityModel();
     this._identifyEntitiesInDocument(identityModel, doc, function() {
-        self._doDataRetrieval(identityModel);
+        self._onGotIdentityModel(identityModel);
     });
 };
 
@@ -105,7 +91,7 @@ Companion.PageSession.ActivatingStage.prototype._handleDatawebPage = function(do
         }
     }
     
-    this._doDataRetrieval(identityModel);
+    this._onGotIdentityModel(identityModel);
 };
 
 Companion.PageSession.ActivatingStage.prototype._handleMultiwebPage = function(doc) {
@@ -129,7 +115,7 @@ Companion.PageSession.ActivatingStage.prototype._handleMultiwebPage = function(d
                 Companion.log(e);
             }
         } else {
-            self._doDataRetrieval(identityModel);
+            self._onGotIdentityModel(identityModel);
         };
     };
     doNext();
@@ -142,26 +128,10 @@ Companion.PageSession.ActivatingStage.prototype._identifyEntitiesInDocument = fu
         onDone();
     };
     
-    this._process = new Companion.EntityIdentificationProcess2(doc, identityModel, this._createProcessUI(), {});
+    this._process = new Companion.EntityIdentificationProcess(doc, identityModel, this._createProcessUI(), {});
     this._process.start(onDone2, this._createErrorHandler());
 };
 
-Companion.PageSession.ActivatingStage.prototype._doDataRetrieval = function(identityModel) {
-    var self = this;
-    var freebaseModel = new Companion.FreebaseModel();
-    var onDone = function() {
-        self._process = null;
-        self._pageSession.augment(identityModel, freebaseModel);
-    };
-    
-    this._process = new Companion.DataRetrievingProcess(
-        identityModel, 
-        this._pageSession.database, 
-        this._createProcessUI(), 
-        {
-            freebaseModel:     freebaseModel,
-            rdfModel:         null // TODO
-        }
-    );
-    this._process.start(onDone, this._createErrorHandler());
+Companion.PageSession.ActivatingStage.prototype._onGotIdentityModel = function(identityModel) {
+    this._pageSession.augment(identityModel);
 };
