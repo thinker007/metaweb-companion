@@ -134,6 +134,36 @@ window.mw.parallax.PivotPanelLayer._fillInDom = function(div) {
     return dom;
 };
 
+window.mw.parallax.PivotPanelLayer.prototype._pivot = function(dimension) {
+    var queryNode = this._collection.addRestrictions();
+    
+    var lastQueryNode = null;
+    dimension.getPath().forEachSegment(function(segment) {
+        var newQueryNode = {};
+        newQueryNode[mw.freebase.PropertyPath.segmentToBackwardMqlKey(segment)] = [queryNode];
+        
+        lastQueryNode = queryNode;
+        queryNode = newQueryNode;
+    });
+    lastQueryNode["return"] = "count";
+    queryNode["id"] = null;
+    
+    mw.freebase.mql.read(
+        [queryNode], 
+        function(o) {
+            var itemIDs = [];
+            for (var i = 0; i < o.result.length; i++) {
+                itemIDs.push(o.result[i].id);
+            }
+            
+            var url = "chrome://companion/content/mws-api/packages/parallax/content/browse.html?ids=" + encodeURIComponent(itemIDs.join(";"));
+            var tabBrowser = document.getElementById("content");
+            tabBrowser.selectedTab = tabBrowser.addTab(url);
+        },
+        mw.system.exception
+    );
+};
+
 window.MetawebSuite.core.JsonpQueue.prototype.call = function(url, onDone, onError, debug) {
     if (this._callInProgress == 0) {
         //document.body.style.cursor = "progress";
