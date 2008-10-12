@@ -29,3 +29,7 @@ listbox.companion-pageSession-activatingStagePage-logList {
 vbox.companion-facetPanel {
     padding:  10px;
 }
+
+vbox.companion-pivotPanel {
+    padding:  10px;
+}

@@ -99,15 +99,21 @@
             <box hidden="true">
                 <!-- active-augmenting stage -->
                 <vbox id="companion-pageSession-activeAugmentingStagePage" flex="1"
-                    xmlns:html="http://www.w3.org/1999/xhtml">
+                    xmlns:html="http://www.w3.org/1999/xhtml" style="overflow: auto;">
                     <hbox>
                         <html:ul>
                             <html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.browseTopicsAlone.label;</html:a></html:li>
                             <html:li><html:a href="javascript:{}">&companion.pageSession.activeAugmentingStagePage.findNews.label;</html:a></html:li>
                         </html:ul>
                     </hbox>
+                    
                     <separator class="groove" />
-
+                    
+                    <vbox class="companion-pivotPanel">
+                    </vbox>
+                    
+                    <separator class="groove" />
+                    
                     <vbox flex="1" class="companion-facetPanel">
                     </vbox>
                 </vbox>
@@ -158,6 +164,19 @@
                     <html:a href="javascript:{}" class="facet-choice-label"></html:a>
                     <html:span class="facet-choice-count"></html:span>
                     <html:a href="javascript:{}" class="facet-choice-action action"></html:a>
+                </html:div>
+                
+                <html:div id="companion-pivotPanelTemplate">
+                    <html:div class="pivot-pane-header">
+                        Connections from the topics on this page:
+                    </html:div>
+                    <html:div class="pivot-pane-body"></html:div>
+                    <html:div class="pivot-pane-status-section status">
+                        <html:img src="chrome://companion/content/mws-api/packages/parallax/images/progress-running.gif" /> Finding connections...
+                    </html:div>
+                    <html:div class="pivot-pane-footer" style="display: none;">
+                        <html:a href="javascript:{}" class="action">more connections</html:a>
+                    </html:div>
                 </html:div>
             </box><!-- all templates -->
         </vbox>
