@@ -35,13 +35,6 @@ window.MetawebSuite.parallax.FacetPanelLayer._fillInDom = function(div) {
     return dom;
 };
 
-var old_FacetPanelLayer_installUI = mw.parallax.FacetPanelLayer.prototype.installUI;
-mw.parallax.FacetPanelLayer.prototype.installUI = function(div) {
-    old_FacetPanelLayer_installUI.call(this, div);
-    div.style.overflow = "auto";
-    div.style.display = "-moz-box";
-};
-
 window.TextSearchFacet._fillInDom = function(div) {
     div.innerHTML = "";
 
@@ -103,6 +96,42 @@ window.ListFacet._createFacetChoiceDom = function() {
         count:  div.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "span")[0],
         action: div.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "a")[1]
     };
+};
+
+window.mw.parallax.PivotPanelLayer._createPivotChoiceDom = function(label, count, title) {
+    var div = mw.ui.createHTMLElement("div");
+    div.className = "pivot-choice";
+    div.title = title;
+    
+    var a = mw.ui.createHTMLElement("a");
+    a.appendChild(document.createTextNode(label));
+    a.href = "javascript:{}";
+    div.appendChild(a);
+    
+    div.appendChild(document.createTextNode(" (" + count + ")"));
+    
+    return {
+        div:    div,
+        label:  div.firstChild
+    };
+};
+
+window.mw.parallax.PivotPanelLayer._fillInDom = function(div) {
+    div.innerHTML = "";
+
+    copyChildren(document.getElementById("companion-pivotPanelTemplate"), div);
+    
+    var divs = div.getElementsByTagNameNS("http://www.w3.org/1999/xhtml", "div");
+
+    var dom = {
+        header:         divs[0],
+        pivotContainer: divs[1],
+        statusSection:  divs[2],
+        footer:         divs[3]
+    };
+    dom.showMoreRelatedTopicsAction = dom.footer.childNodes[0];
+    
+    return dom;
 };
 
 window.MetawebSuite.core.JsonpQueue.prototype.call = function(url, onDone, onError, debug) {

@@ -8,13 +8,14 @@ Companion.PageSession.ActiveAugmentingStage = function(pageSession) {
     this._parallaxApp = new mw.parallax.ParallaxApp();
     this._parallaxApp.setNewQuery({ ids: this._pageSession.identityModel.getAllFreebaseIDs() });
     this._facetPanel = new mw.parallax.FacetPanel(new mw.ui.UIContext(this._parallaxApp.getUIContext()));
+    this._pivotPanel = new mw.parallax.PivotPanel(new mw.ui.UIContext(this._parallaxApp.getUIContext()));
     
     this._getCollection().addListener(this);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = function() {
     var self = this;
-    
+
     document.getElementById("companion-statusBarPanel-freebaseButton").onclick = function() {
         self._pageSession.reset();
     };
@@ -23,7 +24,8 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     Companion.addSidePaneContent(this._page);
     Companion.openSidePane();
     
-    this._facetPanel.installUI(this._page.lastChild);
+    this._pivotPanel.installUI(this._page.childNodes[2]);
+    this._facetPanel.installUI(this._page.childNodes[4]);
     
     window.setTimeout(function() { self._highlightContent(); }, 1500);
 };
@@ -33,7 +35,10 @@ Companion.PageSession.ActiveAugmentingStage.prototype.uninstallUserInterface = f
     
     document.getElementById("companion-statusBarPanel-freebaseButton").onclick = null;
     
+    this._pivotPanel.uninstallUI();
+    this._facetPanel.uninstallUI();
     this._page.parentNode.removeChild(this._page);
+    
     this._page = null;
     this._dom = null;
 };
