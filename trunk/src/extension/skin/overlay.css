@@ -26,6 +26,10 @@ listbox.companion-pageSession-activatingStagePage-logList {
 #companion-statusBarPanel-progress label {
 }
 
+vbox.companion-linkPanel  {
+    padding:  10px;
+}
+
 vbox.companion-facetPanel {
     padding:  10px;
 }

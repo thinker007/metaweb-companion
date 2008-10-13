@@ -19,18 +19,29 @@ Companion.PageSession.ActiveAugmentingStage.prototype.installUserInterface = fun
     document.getElementById("companion-statusBarPanel-freebaseButton").onclick = function() {
         self._pageSession.reset();
     };
-    
     this._page = document.getElementById("companion-pageSession-activeAugmentingStagePage").cloneNode(true);
     Companion.addSidePaneContent(this._page);
     Companion.openSidePane();
     
-    this._pivotPanel.installUI(this._page.childNodes[2]);
-    this._facetPanel.installUI(this._page.childNodes[4]);
+    var linkDivs = this._page.childNodes[0].childNodes;
+    linkDivs[0].firstChild.onclick = function() {
+        self._findNews();
+    };
+    linkDivs[1].firstChild.onclick = function() {
+        self._browseTopicsAlone();
+    };
+
+    this._pivotPanel.installUI(this._page.childNodes[1]);
+    this._facetPanel.installUI(this._page.childNodes[3]);
     
     window.setTimeout(function() { self._highlightContent(); }, 1500);
 };
 
 Companion.PageSession.ActiveAugmentingStage.prototype.uninstallUserInterface = function() {
+    var linkDivs = this._page.childNodes[0].childNodes;
+    linkDivs[0].firstChild.onclick = null;
+    linkDivs[1].firstChild.onclick = null;
+    
     Companion.closeSidePane();
     
     document.getElementById("companion-statusBarPanel-freebaseButton").onclick = null;
@@ -89,65 +100,58 @@ Companion.PageSession.ActiveAugmentingStage.prototype._highlightContent = functi
     });
 };
 
+Companion.PageSession.ActiveAugmentingStage.prototype._findNews = function() {
+    var onGotItems = function(itemIDs, names) {
+        GoogleNewsService.getNews(names, 1, onGotNewsLinks, onStatus, onError);
+    };
+    
+    var onGotNewsLinks = function(urls) {
+        for (var i = 0; i < urls.length; i++) {
+            urls[i] = "u=" + encodeURIComponent(urls[i]);
+        }
+        Companion.addTab(
+            //"multiweb:browse" +
+            "chrome://companion/content/multiweb-commands/browse-inner.xul" +
+            "?" + urls.join("&"));
+    };
+    
+    var onStatus = function(s) {
+        Companion.log(s);
+    };
+    
+    var onError = function(s) {
+        alert("Error: " + s);
+    };
+    
+    this._getRestrictedItemIDs(onGotItems);
+};
+
+Companion.PageSession.ActiveAugmentingStage.prototype._browseTopicsAlone = function() {
+    this._getRestrictedItemIDs(function(itemIDs) {
+        Companion.addTab(
+            //"dataweb:browse" +
+            "chrome://companion/content/browse.html" +
+            "?ids=" + encodeURIComponent(itemIDs.join(";")));
+    });
+};
+
 Companion.PageSession.ActiveAugmentingStage.prototype._getRestrictedItemIDs = function(onDone) {
     var queryNode = this._getCollection().addRestrictions();
     queryNode["id"] = null;
+    queryNode["name"] = null;
     
     mw.freebase.mql.read(
         [queryNode], 
         function(o) {
             var itemIDs = [];
+            var names = [];
             for (var i = 0; i < o.result.length; i++) {
-                itemIDs.push(o.result[i].id);
+                var item = o.result[i];
+                itemIDs.push(item.id);
+                names.push(item.name);
             }
-            onDone(itemIDs);
+            onDone(itemIDs, names);
         }, 
         mw.system.exception
     );
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._slideFreebase = function(fbids) {
-    var url = 
-        //"dataweb:browse" +
-        "chrome://companion/content/dataweb-commands/browse-inner.xul" +
-        "?fbids=" + encodeURIComponent(fbids.join(";"));
-    this._pageSession.windowSession.browser.setAttribute("src", url);
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._onClickBrowseTopicsAloneLink = function() {
-    var collection = this._pageSession.collection;
-    var fbids = collection.getRestrictedItems().toArray();
-    this._browseTo(
-        //"dataweb:browse" +
-        "chrome://companion/content/dataweb-commands/browse-inner.xul" +
-        "?fbids=" + encodeURIComponent(fbids.join(";")));
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._onClickFindMoreNewsLink = function() {
-    var collection = this._pageSession.collection;
-    var items = collection.getRestrictedItems();
-    var labels = this._pageSession.database.getObjectsUnion(items, "label").toArray();
-    
-    var self = this;
-    var onDone = function(urls) {
-        for (var i = 0; i < urls.length; i++) {
-            urls[i] = "u=" + encodeURIComponent(urls[i]);
-        }
-        self._browseTo(
-            //"multiweb:browse" +
-            "chrome://companion/content/multiweb-commands/browse-inner.xul" +
-            "?" + urls.join("&"));
-    };
-    var onStatus = function(s) {
-        Companion.log(s);
-    };
-    var onError = function(s) {
-        alert("Error: " + s);
-    };
-    
-    GoogleNewsService.getNews(labels, 1, onDone, onStatus, onError);
-};
-
-Companion.PageSession.ActiveAugmentingStage.prototype._browseTo = function(url) {
-    this._pageSession.windowSession.browser.setAttribute("src", url);
 };

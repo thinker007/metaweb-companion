@@ -9,3 +9,15 @@ a {
 div.facet {
     display: block;
 }
+
+.pivot-pane-header {
+    margin-top: 0px;
+}
+
+div.pivot-pane-footer {
+    border-top: none;
+}
+
+div.facet-pane-controls {
+    border-top: none;
+}
