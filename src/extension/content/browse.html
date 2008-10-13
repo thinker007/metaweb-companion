@@ -1,0 +1,80 @@
+<html>
+<head>
+    <title>Freebase Parallax</title>
+    <script src="mws-api/mw.js?compilation=parallax"></script>
+    <script>
+        var exploreWidget;
+        var parallaxApp;
+        
+        function onLoad() {
+            Logging.log("init", { browser: myJQuery.browser });
+
+            exploreWidget = new mw.ui.widgets.ParallaxSearchWidget(exploreQueryHandler)
+                .installUI(document.getElementById("explore-input"));
+            
+            parallaxApp = new mw.parallax.ParallaxApp();
+            
+            var uiContext = parallaxApp.getUIContext();
+            
+            new mw.parallax.HistoryPanel(new mw.ui.UIContext(uiContext))
+                .installUI(document.getElementById("history-pane"));
+            
+            new mw.parallax.FacetPanel(new mw.ui.UIContext(uiContext))
+                .installUI(document.getElementById("facet-pane"));
+            
+            new mw.parallax.PivotPanel(new mw.ui.UIContext(uiContext))
+                .installUI(document.getElementById("pivot-pane"));
+            
+            new mw.parallax.ViewPanel(new mw.ui.UIContext(uiContext))
+                .installUI(document.getElementById("view-pane"));
+                
+            parallaxApp.initializeFromURL();
+        }
+        
+        function exploreQueryHandler(query) {
+            exploreWidget.hide();
+            parallaxApp.setNewQuery(query);
+        }
+    </script>
+</head>
+<body onload="onLoad()">
+    <div id="header-pane">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0"><tr valign="top">
+            <td>
+                <a href="index.html" style="text-decoration:none;"><span style="font-family: Arial; font-size: 20pt; font-weight: normal">free<b>base</b> parallax</span></a>
+            </td>
+            <td align="right">
+                <a href="javascript:parallaxApp.showPermanentLink();">link to this page</a> &bull; new search <input id="explore-input"></input>
+            </td>
+        </tr></table>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0"><tr valign="bottom">
+            <td>
+                <div><span style="font-style: italic;">a novel browsing interface designed for freebase &mdash; 
+                        send comments to <a href="mailto:david@metaweb.com">David Huynh</a> &bull;
+                        <a href="http://code.google.com/p/freebase-parallax/" target="_blank">get source code</a>
+                    </span>
+                </div>
+            </td>
+            <td align="right" style="font-size: 80%; margin-top: 10px;">
+                debug: <a id="debug-toggle" href="javascript:toggleDebug();">activate</a>
+            </td>
+        </tr></table>
+    </div>
+    
+    <div id="history-pivot-pane">
+        <div id="history-pane"></div>
+        <div id="pivot-pane"></div>
+    </div>
+    
+    <table width="100%" cellspacing="0" cellpadding="0" border="0"><tr valign="top">
+        <td width="1%">
+            <div id="facet-pane"></div>
+        </td>
+        <td>
+            <div id="view-selector-pane"></div>
+            <div id="view-pane"></div>
+        </td>
+    </tr></table>
+    
+</body>
+</html>

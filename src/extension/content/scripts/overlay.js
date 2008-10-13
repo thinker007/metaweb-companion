@@ -117,3 +117,8 @@ Companion.addSidePaneContent = function(elmt) {
     var sidePane = document.getElementById("companion-sidePane");
     sidePane.insertBefore(elmt, sidePane.lastChild);
 };
+
+Companion.addTab = function(url) {
+    var tabBrowser = document.getElementById("content");
+    tabBrowser.selectedTab = tabBrowser.addTab(url);
+};

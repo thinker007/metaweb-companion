@@ -155,10 +155,7 @@ window.mw.parallax.PivotPanelLayer.prototype._pivot = function(dimension) {
             for (var i = 0; i < o.result.length; i++) {
                 itemIDs.push(o.result[i].id);
             }
-            
-            var url = "chrome://companion/content/mws-api/packages/parallax/content/browse.html?ids=" + encodeURIComponent(itemIDs.join(";"));
-            var tabBrowser = document.getElementById("content");
-            tabBrowser.selectedTab = tabBrowser.addTab(url);
+            Companion.addTab("chrome://companion/content/browse.html?ids=" + encodeURIComponent(itemIDs.join(";")));
         },
         mw.system.exception
     );
@@ -248,4 +245,100 @@ window.MetawebSuite.core.JsonpQueue.prototype.call = function(url, onDone, onErr
     request.open("GET", url, true);
     request.onreadystatechange = stateChange;
     request.send("");
+};
+
+window.MetawebSuite.core.JsonpQueue.prototype.post = function(url, payload, onDone, onError, debug) {
+    if (this._callInProgress == 0) {
+        //document.body.style.cursor = "progress";
+    }
+    this._callInProgress++;
+    
+    var callbackID = new Date().getTime() + "x" + Math.floor(Math.random() * 1000);
+    
+    var self = this;
+    var cleanup = function() {
+        self._callInProgress--;
+        if (self._callInProgress == 0) {
+            //document.body.style.cursor = "auto";
+        }
+        
+        // the call might have been canceled, in which case its callback ID was removed.
+        if (callbackID in self._pendingCallIDs) {
+            delete self._pendingCallIDs[callbackID];
+            return true;
+        } else {
+            return false;
+        }
+    };
+    
+    var callback = function(o) {
+        if (cleanup()) {
+            try {
+                onDone(o);
+            } catch (e) {
+                mw.system.exception(e);
+            }
+        }
+    };
+    
+    this._pendingCallIDs[callbackID] = true;
+    
+    var request = new XMLHttpRequest();
+    var stateChange = function() {
+        if (request.readyState != 4) {
+            return;
+        }
+        
+        if (request.status != 200) {
+            Companion.log(
+                "Companion error: " +
+                "state = " + request.readyState + 
+                " status = " + request.status +
+                " text = " + request.responseText
+            );
+            
+            if (onError) {
+                onError(request);
+            }
+            return;
+        }
+        
+        if (onDone) {
+            try {
+                var o = eval("(" + request.responseText + ")");
+                callback(o);
+            } catch (e) {
+                Companion.exception(e);
+                onError(request, e);
+            }
+        }
+    };
+    request.open("POST", url, true);
+    request.onreadystatechange = stateChange;
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("Content-Length", payload.length);
+    request.send(payload);
+};
+
+window.MetawebSuite.freebase.mql.readThroughQueue = function(queue, query, onDone, onError, debug) {try {
+    var q = JSON.stringify({ "q1" : { "query" : query } });
+    var payload = "queries=" + q;
+    
+    var onDone2 = function(o) {
+        if (o.q1.code == "/api/status/error") {
+            if (typeof onError == "function") {
+                onError(o.q1.messages[0].message, query);
+            }
+        } else {
+            onDone(o.q1);
+        }
+    };
+    var onError2 = function() {
+        if (typeof onError == "function") {
+            onError("Unknown", query);
+        }
+    }
+    
+    queue.post(window.MetawebSuite.freebase.mql.getMqlReadUrl(), payload, onDone2, onError2, debug);
+    } catch (e) { alert(e); }
 };
