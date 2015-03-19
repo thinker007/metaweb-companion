@@ -1,0 +1,1 @@
+This extension picks out name entities within web pages and, from those entities, launches you into the Web of Data.
